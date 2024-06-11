@@ -1,14 +1,17 @@
+import 'package:asteroids_game/game.dart';
+import 'package:asteroids_game/utils.dart';
 import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
 
 //
 //
 // Bullet class is a PositionComponent so we get the angle and position of the
 // element.
-class Bullet extends PositionComponent {
+class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
   // color of the bullet
   static final _paint = Paint()..color = Colors.white;
-  // the bullet speed in pixles per second
+  // the bullet speed in pixels per second
   late final double _speed;
 
   // velocity vector for the bullet.
@@ -45,5 +48,9 @@ class Bullet extends PositionComponent {
   @override
   void update(double dt) {
     position.add(_velocity * dt);
+
+    if (Utils.isPositionOutOfBounds(gameRef.size, position)) {
+      gameRef.remove(this);
+    }
   }
 }
