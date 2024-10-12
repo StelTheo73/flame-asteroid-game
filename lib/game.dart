@@ -5,7 +5,6 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
@@ -51,8 +50,8 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
 
   @override
   void onTapUp(TapUpEvent event) {
-    handleAsteroidTap(event);
-    // fireBullet(player.angle, player.position, player.getSpeed());
+    // handleAsteroidTap(event);
+    fireBullet(player.angle, player.position, player.getSpeed());
     super.onTapUp(event);
   }
 
@@ -69,9 +68,9 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
 
   void fireBullet(double angle, Vector2 initialPosition, double initialSpeed) {
     final Vector2 velocity = Vector2(0, -1);
-    velocity.rotate(angle);
     add(Bullet(
       position: initialPosition,
+      angle: angle,
       velocity: velocity,
       initialSpeed: initialSpeed,
     ));

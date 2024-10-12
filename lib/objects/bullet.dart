@@ -4,12 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
 
-//
-//
-// Bullet class is a PositionComponent so we get the angle and position of the
-// element.
 class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
-  // color of the bullet
   static final _paint = Paint()..color = Colors.white;
   // the bullet speed in pixels per second
   late final double _speed;
@@ -17,19 +12,20 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
   // velocity vector for the bullet.
   late Vector2 _velocity;
 
-  //
-  // default constructor with default values
-  Bullet(
-      {required Vector2 position,
-      required Vector2 velocity,
-      double initialSpeed = 0})
-      : _velocity = velocity,
-        _speed = initialSpeed + 150,
-        super(
+  Bullet({
+    required Vector2 position,
+    required Vector2 velocity,
+    required double angle,
+    double initialSpeed = 0,
+  }) : super(
           position: position,
-          size: Vector2.all(4), // 2x2 bullet
+          size: Vector2.all(4),
           anchor: Anchor.center,
-        );
+        ) {
+    velocity.rotate(angle);
+    _velocity = velocity;
+    _speed = initialSpeed + 150;
+  }
 
   @override
   Future<void> onLoad() async {
