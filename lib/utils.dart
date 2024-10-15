@@ -53,13 +53,33 @@ class Utils {
   /// area
   ///
   static bool isPositionOutOfBounds(Vector2 bounds, Vector2 position) {
-    bool result = false;
-
     if (position.x >= bounds.x ||
         position.x <= 0 ||
         position.y <= 0 ||
         position.y >= bounds.y) {
-      result = true;
+      return true;
+    }
+
+    return false;
+  }
+
+  static Vector2 wrapPosition(Vector2 bounds, Vector2 position) {
+    Vector2 result = Vector2.zero();
+
+    if (position.x >= bounds.x) {
+      result.x = 0;
+    } else if (position.x <= 0) {
+      result.x = bounds.x;
+    } else {
+      result.x = position.x;
+    }
+
+    if (position.y >= bounds.y) {
+      result.y = 0;
+    } else if (position.y <= 0) {
+      result.y = bounds.y;
+    } else {
+      result.y = position.y;
     }
 
     return result;

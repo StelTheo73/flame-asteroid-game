@@ -1,7 +1,9 @@
 import 'dart:math' show pow, sqrt;
 import 'package:flame/components.dart';
+import 'package:asteroids_game/utils.dart';
+import 'package:asteroids_game/game.dart';
 
-class JoystickPlayer extends SpriteComponent with HasGameRef {
+class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
   /// Pixels/s
   double maxSpeed = 300.0;
 
@@ -27,6 +29,7 @@ class JoystickPlayer extends SpriteComponent with HasGameRef {
       position.add(joystick.relativeDelta * maxSpeed * dt);
       angle = (joystick.delta.screenAngle());
     }
+    position = Utils.wrapPosition(gameRef.size, position);
   }
 
   double getSpeed() {
