@@ -1,6 +1,7 @@
 import 'package:asteroids_game/objects/asteroid.dart';
 import 'package:asteroids_game/objects/bullet.dart';
 import 'package:asteroids_game/objects/joystick_player.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -25,6 +26,9 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    await loadAssets();
+    startBgmMusic();
+
     //
     // joystick knob and background skin styles
     final Paint knobPaint = BasicPalette.green.withAlpha(200).paint();
@@ -98,6 +102,16 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
         ..anchor = Anchor.center
         ..paint = paint);
     }
+  }
+
+  Future<void> loadAssets() async {
+    await FlameAudio.audioCache.load('race_to_mars.mp3');
+    await FlameAudio.audioCache.load('laser_004.wav');
+  }
+
+  void startBgmMusic() {
+    FlameAudio.bgm.initialize();
+    FlameAudio.bgm.play('race_to_mars.mp3');
   }
 
   // @override

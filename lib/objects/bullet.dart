@@ -1,8 +1,13 @@
 import 'package:asteroids_game/game.dart';
 import 'package:asteroids_game/utils.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
+
+// FlameAudio.audioCache.loadAll([
+//   'laser_004.wav',
+// ]);
 
 class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
   static final _paint = Paint()..color = Colors.white;
@@ -29,6 +34,7 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
 
   @override
   Future<void> onLoad() async {
+    FlameAudio.play('laser_004.wav');
     await super.onLoad();
     // _velocity is a unit vector so we need to make it account for the actual
     // speed.
