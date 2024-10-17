@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
   @override
   bool debugMode = false;
+  // @override
+  // final camera = CameraComponent();
 
   bool running = true;
 
@@ -45,6 +47,7 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
 
     add(player);
     add(joystick);
+    camera.follow(player);
   }
 
   @override
@@ -106,7 +109,9 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
 
   Future<void> loadAssets() async {
     await FlameAudio.audioCache.load('race_to_mars.mp3');
-    await FlameAudio.audioCache.load('laser_004.wav');
+    await FlameAudio.audioCache.load('missile_shot.wav');
+    await FlameAudio.audioCache.load('missile_flyby.wav');
+    await FlameAudio.audioCache.load('missile_hit.wav');
   }
 
   void startBgmMusic() {

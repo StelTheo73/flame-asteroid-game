@@ -1,5 +1,6 @@
 import 'dart:math' show pow, sqrt;
 import 'package:flame/components.dart';
+import 'package:flame/effects.dart';
 import 'package:asteroids_game/utils.dart';
 import 'package:asteroids_game/game.dart';
 
@@ -41,5 +42,16 @@ class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
     } else {
       return 0.0;
     }
+  }
+
+  shake() {
+    // shake effect has to be re-declared every time we want to use it,
+    // because it's a one-time effect.
+    // Otherwise, it will apply the effect only once.
+    final shakeEffect = MoveEffect.by(
+      Vector2(0, 5),
+      ZigzagEffectController(period: 0.2),
+    );
+    add(shakeEffect);
   }
 }

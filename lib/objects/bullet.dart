@@ -34,7 +34,8 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
 
   @override
   Future<void> onLoad() async {
-    FlameAudio.play('laser_004.wav');
+    FlameAudio.play('missile_shot.wav');
+    FlameAudio.play('missile_flyby.wav');
     await super.onLoad();
     // _velocity is a unit vector so we need to make it account for the actual
     // speed.
@@ -52,7 +53,9 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
     position.add(_velocity * dt);
 
     if (Utils.isPositionOutOfBounds(gameRef.size, position)) {
-      gameRef.remove(this);
+      FlameAudio.play('missile_hit.wav');
+      removeFromParent(); // gameRef.remove(this);
+      gameRef.player.shake();
     }
   }
 }
