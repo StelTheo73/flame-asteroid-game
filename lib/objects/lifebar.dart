@@ -9,6 +9,35 @@ enum LifeBarPlacement {
 
 class LifeBar extends PositionComponent {
   //
+  // Constructor
+  LifeBar.initData(
+    Vector2 parentSize, {
+    Vector2? size,
+    int? warningThreshold,
+    Color? warningColor,
+    Color? healthyColor,
+    double? barOffset,
+    LifeBarPlacement? placement,
+  }) {
+    _parentSize = parentSize;
+    _size = size ?? Vector2(parentSize.x, 5);
+    _warningThreshold = warningThreshold ?? _healthThreshold;
+    _warningColor = warningColor ?? _redColor;
+    _healthyColor = healthyColor ?? _greenColor;
+    _barToParentOffset = barOffset ?? _defaultBarOffset;
+    _placement = placement ?? LifeBarPlacement.left;
+    _healthyColorStyled = Paint()
+      ..color = _healthyColor
+      ..style = PaintingStyle.fill;
+    _warningColorStyled = Paint()
+      ..color = _warningColor
+      ..style = PaintingStyle.fill;
+
+    anchor = Anchor.center;
+
+    _updateCurrentColor();
+  }
+  //
   // Constant Attributes
   static const Color _redColor = Colors.red;
   static const Color _greenColor = Colors.green;
@@ -46,36 +75,6 @@ class LifeBar extends PositionComponent {
   late LifeBarPlacement _placement;
   late Paint _healthyColorStyled;
   late Paint _warningColorStyled;
-
-  //
-  // Constructor
-  LifeBar.initData(
-    Vector2 parentSize, {
-    Vector2? size,
-    int? warningThreshold,
-    Color? warningColor,
-    Color? healthyColor,
-    double? barOffset,
-    LifeBarPlacement? placement,
-  }) {
-    _parentSize = parentSize;
-    _size = size ?? Vector2(parentSize.x, 5);
-    _warningThreshold = warningThreshold ?? _healthThreshold;
-    _warningColor = warningColor ?? _redColor;
-    _healthyColor = healthyColor ?? _greenColor;
-    _barToParentOffset = barOffset ?? _defaultBarOffset;
-    _placement = placement ?? LifeBarPlacement.left;
-    _healthyColorStyled = Paint()
-      ..color = _healthyColor
-      ..style = PaintingStyle.fill;
-    _warningColorStyled = Paint()
-      ..color = _warningColor
-      ..style = PaintingStyle.fill;
-
-    anchor = Anchor.center;
-
-    _updateCurrentColor();
-  }
 
   //
   // Life

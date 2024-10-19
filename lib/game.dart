@@ -1,12 +1,13 @@
-import 'package:asteroids_game/objects/asteroid.dart';
-import 'package:asteroids_game/objects/bullet.dart';
-import 'package:asteroids_game/objects/joystick_player.dart';
-import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+
+import 'objects/asteroid.dart';
+import 'objects/bullet.dart';
+import 'objects/joystick_player.dart';
 
 class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
   @override
@@ -29,7 +30,7 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
   Future<void> onLoad() async {
     await super.onLoad();
     await loadAssets();
-    startBgmMusic();
+    await startBgmMusic();
 
     //
     // joystick knob and background skin styles
@@ -48,6 +49,8 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     add(player);
     add(joystick);
     camera.follow(player);
+
+    overlays.add('PauseButton');
   }
 
   @override
@@ -57,6 +60,9 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
 
   @override
   void onTapUp(TapUpEvent event) {
+    if (!running) {
+      return;
+    }
     // handleAsteroidTap(event);
     fireBullet(player.angle, player.position, player.getSpeed());
     super.onTapUp(event);
@@ -114,9 +120,24 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     await FlameAudio.audioCache.load('missile_hit.wav');
   }
 
-  void startBgmMusic() {
+  Future<void> startBgmMusic() async {
     FlameAudio.bgm.initialize();
-    FlameAudio.bgm.play('race_to_mars.mp3');
+    await FlameAudio.bgm.play('race_to_mars.mp3');
+  }
+
+  Future<void> togglePause() async {
+    running ? await pause() : await resume();
+    running = !running;
+  }
+
+  Future<void> pause() async {
+    super.pauseEngine();
+    await FlameAudio.bgm.pause();
+  }
+
+  Future<void> resume() async {
+    super.resumeEngine();
+    await FlameAudio.bgm.resume();
   }
 
   // @override

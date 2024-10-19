@@ -1,9 +1,10 @@
-import 'package:asteroids_game/game.dart';
-import 'package:asteroids_game/utils.dart';
-import 'package:flame_audio/flame_audio.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+
+import '../game.dart';
+import '../utils.dart';
 
 // FlameAudio.audioCache.loadAll([
 //   'laser_004.wav',
@@ -39,7 +40,7 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
     await super.onLoad();
     // _velocity is a unit vector so we need to make it account for the actual
     // speed.
-    _velocity = (_velocity)..scaleTo(_speed);
+    _velocity = _velocity..scaleTo(_speed);
   }
 
   @override

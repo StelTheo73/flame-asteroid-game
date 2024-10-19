@@ -1,11 +1,12 @@
 import 'dart:math';
 
-import 'package:asteroids_game/game.dart';
-import 'package:asteroids_game/objects/lifebar.dart';
-import 'package:asteroids_game/utils.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
+
+import '../game.dart';
+import '../utils.dart';
+import 'lifebar.dart';
 
 class Asteroid extends PositionComponent
     with HasGameRef<AsteroidGame>, TapCallbacks {
