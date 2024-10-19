@@ -12,8 +12,6 @@ import 'objects/joystick_player.dart';
 class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
   @override
   bool debugMode = false;
-  // @override
-  // final camera = CameraComponent();
 
   bool running = true;
 
@@ -26,11 +24,18 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
 
+  final TimerComponent timer = TimerComponent(
+    period: 10,
+    repeat: true,
+    onTick: () {
+      print('10 seconds elapsed');
+    },
+  );
+
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    await loadAssets();
-    await startBgmMusic();
+    await setup();
 
     //
     // joystick knob and background skin styles
@@ -49,8 +54,6 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     add(player);
     add(joystick);
     camera.follow(player);
-
-    overlays.add('PauseButton');
   }
 
   @override
@@ -120,9 +123,22 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     await FlameAudio.audioCache.load('missile_hit.wav');
   }
 
-  Future<void> startBgmMusic() async {
+  Future<void> setup() async {
+    // Load audio assets
+    await loadAssets();
     FlameAudio.bgm.initialize();
     await FlameAudio.bgm.play('race_to_mars.mp3');
+
+    // Interval timer (runs every 10 seconds)
+    add(timer);
+
+    // Pause button
+    overlays.add('PauseButton');
+
+    // Countdown timer
+    final TimerComponent countdown = createCountdownTimer();
+    countdown.timer.start();
+    add(countdown);
   }
 
   Future<void> togglePause() async {
@@ -140,9 +156,18 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     await FlameAudio.bgm.resume();
   }
 
-  // @override
-  // void onDoubleTapUp(DoubleTapEvent event) {
-  //   running ? pauseEngine() : resumeEngine();
-  //   running = !running;
-  // }
+  TimerComponent createCountdownTimer() {
+    late final TimerComponent countdown;
+    countdown = TimerComponent(
+      removeOnFinish: true,
+      period: 5,
+      onTick: () {
+        print('Countdown timer tick');
+        if (countdown.timer.finished) {
+          print('Countdown timer finished');
+        }
+      },
+    );
+    return countdown;
+  }
 }
