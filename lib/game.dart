@@ -2,6 +2,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
+import 'package:flame/parallax.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +10,7 @@ import 'objects/asteroid.dart';
 import 'objects/bullet.dart';
 import 'objects/joystick_player.dart';
 
-class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
+class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   @override
   bool debugMode = false;
 
@@ -116,29 +117,12 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
     }
   }
 
-  Future<void> loadAssets() async {
-    await FlameAudio.audioCache.load('race_to_mars.mp3');
-    await FlameAudio.audioCache.load('missile_shot.wav');
-    await FlameAudio.audioCache.load('missile_flyby.wav');
-    await FlameAudio.audioCache.load('missile_hit.wav');
-  }
-
   Future<void> setup() async {
-    // Load audio assets
-    await loadAssets();
-    FlameAudio.bgm.initialize();
-    await FlameAudio.bgm.play('race_to_mars.mp3');
+    // Parallax background
+    await setupParallax();
 
-    // Interval timer (runs every 10 seconds)
-    add(timer);
-
-    // Pause button
-    overlays.add('PauseButton');
-
-    // Countdown timer
-    final TimerComponent countdown = createCountdownTimer();
-    countdown.timer.start();
-    add(countdown);
+    addOverlays();
+    addTimers();
   }
 
   Future<void> togglePause() async {
@@ -169,5 +153,33 @@ class AsteroidGame extends FlameGame with DragCallbacks, TapCallbacks {
       },
     );
     return countdown;
+  }
+
+  void addTimers() {
+    // Interval timer (runs every 10 seconds)
+    add(timer);
+    // Countdown timer
+    final TimerComponent countdown = createCountdownTimer();
+    countdown.timer.start();
+    add(countdown);
+  }
+
+  void addOverlays() {
+    overlays.add('PauseButton');
+  }
+
+  Future<void> setupParallax() async {
+    final List<ParallaxImageData> images = <ParallaxImageData>[
+      ParallaxImageData('parallax/big_stars.png'),
+      ParallaxImageData('parallax/small_stars.png'),
+    ];
+    final ParallaxComponent<FlameGame<World>> parallax =
+        await loadParallaxComponent(
+      images,
+      baseVelocity: Vector2(0.0, -25.0),
+      velocityMultiplierDelta: Vector2(1.0, 1.8),
+      repeat: ImageRepeat.repeat,
+    );
+    add(parallax);
   }
 }
