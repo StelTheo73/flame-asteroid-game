@@ -11,9 +11,6 @@ import 'objects/bullet.dart';
 import 'objects/joystick_player.dart';
 
 class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
-  @override
-  bool debugMode = false;
-
   bool running = true;
 
   late final JoystickPlayer player;
@@ -169,17 +166,27 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   }
 
   Future<void> setupParallax() async {
-    final List<ParallaxImageData> images = <ParallaxImageData>[
-      ParallaxImageData('parallax/big_stars.png'),
-      ParallaxImageData('parallax/small_stars.png'),
-    ];
-    final ParallaxComponent<FlameGame<World>> parallax =
-        await loadParallaxComponent(
-      images,
-      baseVelocity: Vector2(0.0, -25.0),
-      velocityMultiplierDelta: Vector2(1.0, 1.8),
-      repeat: ImageRepeat.repeat,
+    final Map<String, double> layersMeta = <String, double>{
+      'parallax/big_stars.png': 1.0,
+      'parallax/small_stars.png': 1.5,
+    };
+
+    final Iterable<Future<ParallaxLayer>> layers = layersMeta.entries.map(
+      (MapEntry<String, double> layer) => loadParallaxLayer(
+        ParallaxImageData(layer.key),
+        velocityMultiplier: Vector2(1.0, layer.value),
+        repeat: ImageRepeat.repeatY,
+      ),
     );
+
+    final ParallaxComponent<FlameGame<World>> parallax =
+        ParallaxComponent<FlameGame<World>>(
+      parallax: Parallax(
+        await Future.wait(layers),
+        baseVelocity: Vector2(0.0, -25.0),
+      ),
+    );
+
     add(parallax);
   }
 }

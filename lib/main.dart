@@ -2,12 +2,16 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
+import 'package:yaml/yaml.dart';
 
 import 'components/Buttons/PauseButton.dart';
 import 'game.dart';
 
 class AsteroidGameWidget extends StatefulWidget {
-  const AsteroidGameWidget({super.key});
+  const AsteroidGameWidget({super.key, this.debugMode = false});
+
+  final bool debugMode;
 
   @override
   AsteroidGameWidgetState createState() => AsteroidGameWidgetState();
@@ -35,19 +39,15 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
 
   @override
   void initState() {
+    _game.debugMode = widget.debugMode;
+
     FlameAudio.bgm.initialize();
     loadAssets();
-    FlameAudio.bgm.play('race_to_mars.mp3');
-    super.initState();
-  }
+    if (!widget.debugMode) {
+      FlameAudio.bgm.play('race_to_mars.mp3');
+    }
 
-  @override
-  Future<void> didUpdateWidget(covariant AsteroidGameWidget oldWidget) async {
-    await FlameAudio.bgm.audioPlayer.stop();
-    await FlameAudio.bgm.stop();
-    FlameAudio.bgm.dispose();
-    FlameAudio.bgm.initialize();
-    super.didUpdateWidget(oldWidget);
+    super.initState();
   }
 
   @override
@@ -67,12 +67,27 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
   }
 }
 
+class Configuration {
+  late bool debugMode;
+
+  Future<void> loadConfiguration() async {
+    final String yamlString = await rootBundle.loadString('config/config.yml');
+    final yaml = loadYaml(yamlString);
+    debugMode = yaml['debugMode'] as bool;
+  }
+}
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Flame.device.fullScreen();
   Flame.device.setPortrait();
 
+  final Configuration configuration = Configuration();
+  await configuration.loadConfiguration();
+
   runApp(
-    const AsteroidGameWidget(),
+    AsteroidGameWidget(
+      debugMode: configuration.debugMode,
+    ),
   );
 }
