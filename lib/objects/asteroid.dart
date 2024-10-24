@@ -5,7 +5,7 @@ import 'package:flame/events.dart';
 import 'package:flutter/material.dart';
 
 import '../game.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
 import 'lifebar.dart';
 
 class Asteroid extends PositionComponent

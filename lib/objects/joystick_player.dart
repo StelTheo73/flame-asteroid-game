@@ -4,7 +4,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 
 import '../game.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
 
 class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
   JoystickPlayer(this.joystick)

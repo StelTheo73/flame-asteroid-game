@@ -2,11 +2,10 @@ import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/services.dart';
-import 'package:yaml/yaml.dart';
 
 import 'components/Buttons/PauseButton.dart';
 import 'game.dart';
+import 'utils/config.dart';
 
 class AsteroidGameWidget extends StatefulWidget {
   const AsteroidGameWidget({super.key, this.debugMode = false});
@@ -64,16 +63,6 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
     await FlameAudio.bgm.stop();
     FlameAudio.bgm.dispose();
     super.dispose();
-  }
-}
-
-class Configuration {
-  late bool debugMode;
-
-  Future<void> loadConfiguration() async {
-    final String yamlString = await rootBundle.loadString('config/config.yml');
-    final yaml = loadYaml(yamlString) ?? {};
-    debugMode = yaml['debugMode'] as bool? ?? false;
   }
 }
 

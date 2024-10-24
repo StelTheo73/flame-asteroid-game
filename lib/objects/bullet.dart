@@ -4,7 +4,7 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 import '../game.dart';
-import '../utils.dart';
+import '../utils/utils.dart';
 
 // FlameAudio.audioCache.loadAll([
 //   'laser_004.wav',
