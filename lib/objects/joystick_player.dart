@@ -46,6 +46,10 @@ class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
     }
   }
 
+  Vector2 getVelocity() {
+    return joystick.relativeDelta * maxSpeed;
+  }
+
   void shake() {
     // shake effect has to be re-declared every time we want to use it,
     // because it's a one-time effect.

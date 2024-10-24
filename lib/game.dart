@@ -15,6 +15,8 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
 
   late final JoystickPlayer player;
   late final JoystickComponent joystick;
+  late final ParallaxComponent<FlameGame<World>> parallax;
+  final Vector2 parallaxBaseVelocity = Vector2(0, -25);
   final TextPaint shipAngleTextPaint = TextPaint();
 
   final Paint paint = Paint()
@@ -56,6 +58,9 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
 
   @override
   void update(double dt) {
+    final Vector2 velocity = parallaxBaseVelocity.clone();
+    velocity.rotate(player.angle);
+    parallax.parallax?.baseVelocity = player.getVelocity() + velocity;
     super.update(dt);
   }
 
@@ -175,15 +180,14 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
       (MapEntry<String, double> layer) => loadParallaxLayer(
         ParallaxImageData(layer.key),
         velocityMultiplier: Vector2(1.0, layer.value),
-        repeat: ImageRepeat.repeatY,
+        repeat: ImageRepeat.repeat,
       ),
     );
 
-    final ParallaxComponent<FlameGame<World>> parallax =
-        ParallaxComponent<FlameGame<World>>(
+    parallax = ParallaxComponent<FlameGame<World>>(
       parallax: Parallax(
         await Future.wait(layers),
-        baseVelocity: Vector2(0.0, -25.0),
+        baseVelocity: parallaxBaseVelocity,
       ),
     );
 
