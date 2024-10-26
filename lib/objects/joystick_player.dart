@@ -1,12 +1,14 @@
 import 'dart:math' show pow, sqrt;
 
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 
 import '../game.dart';
 import '../utils/utils.dart';
 
-class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
+class JoystickPlayer extends SpriteComponent
+    with HasGameRef<AsteroidGame>, CollisionCallbacks {
   JoystickPlayer(this.joystick)
       : super(
           size: Vector2.all(50.0),
@@ -24,6 +26,7 @@ class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
     super.onLoad();
     sprite = await gameRef.loadSprite('asteroids_ship.png');
     position = gameRef.size / 2;
+    add(RectangleHitbox());
   }
 
   @override
@@ -33,6 +36,7 @@ class JoystickPlayer extends SpriteComponent with HasGameRef<AsteroidGame> {
       angle = joystick.delta.screenAngle();
     }
     position = Utils.wrapPosition(gameRef.size, position);
+    super.update(dt);
   }
 
   double getSpeed() {

@@ -7,30 +7,44 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 import 'objects/asteroid.dart';
+import 'objects/ball.dart';
 import 'objects/bullet.dart';
 import 'objects/joystick_player.dart';
+import 'utils/utils.dart';
 
-class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
+class AsteroidGame extends FlameGame<World>
+    with DragCallbacks, TapCallbacks, HasCollisionDetection {
   bool running = true;
 
-  late final JoystickPlayer player;
+  late JoystickPlayer player;
   late final JoystickComponent joystick;
   late final ParallaxComponent<FlameGame<World>> parallax;
   final Vector2 parallaxBaseVelocity = Vector2(0, -25);
   final TextPaint shipAngleTextPaint = TextPaint();
 
+  // Number of balls and number of timer ticks
+  static const int numSimulationObjects = 4;
+  // Number of extra lives the player will have in the game
+  static const int numPlayerLivesExtra = 3;
+  int playerLivesLeft = numPlayerLivesExtra;
+  // Bullets shot
+  int numberOfBulletsShot = 0;
+  // Score
+  int score = 0;
+  // Elapsed timer ticks
+  int elapsedTicks = 0;
+
   final Paint paint = Paint()
     ..color = Colors.red
     ..style = PaintingStyle.stroke
     ..strokeWidth = 1;
-
-  final TimerComponent timer = TimerComponent(
-    period: 10,
-    repeat: true,
-    onTick: () {
-      print('10 seconds elapsed');
-    },
+  final TextPaint textDashboard = TextPaint(
+    style: const TextStyle(color: Colors.white, fontSize: 15),
   );
+
+  // Timers
+  late final TimerComponent intervalTimer;
+  late final TimerComponent spawnTimer;
 
   @override
   Future<void> onLoad() async {
@@ -51,13 +65,20 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
 
     player = JoystickPlayer(joystick);
 
-    add(player);
-    add(joystick);
-    camera.follow(player);
+    await add(player);
+    await add(joystick);
+    // camera.follow(player);
+
+    // print(images.keys);
   }
 
   @override
   void update(double dt) {
+    if (!isPlayerAlive()) {
+      parallax.parallax?.baseVelocity = Vector2.zero();
+      super.update(dt);
+      return;
+    }
     final Vector2 velocity = parallaxBaseVelocity.clone();
     velocity.rotate(player.angle);
     parallax.parallax?.baseVelocity = player.getVelocity() + velocity;
@@ -65,12 +86,12 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   }
 
   @override
-  void onTapUp(TapUpEvent event) {
-    if (!running) {
+  Future<void> onTapUp(TapUpEvent event) async {
+    if (!running || !isPlayerAlive()) {
       return;
     }
     // handleAsteroidTap(event);
-    fireBullet(player.angle, player.position, player.getSpeed());
+    await fireBullet(player.angle, player.position, player.getSpeed());
     super.onTapUp(event);
   }
 
@@ -78,6 +99,37 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   void render(Canvas canvas) {
     super.render(canvas);
 
+    if (playerLivesLeft >= 0) {
+      // Extra lives
+      textDashboard.render(
+        canvas,
+        'Extra lives: $playerLivesLeft',
+        Vector2(20, 20),
+      );
+    } else {
+      // Game over
+      textDashboard.render(
+        canvas,
+        'Game Over',
+        Vector2(20, 20),
+      );
+    }
+
+    // Bullets shot
+    textDashboard.render(
+      canvas,
+      'Bullets shot: $numberOfBulletsShot',
+      Vector2(20, 60),
+    );
+
+    // Score
+    textDashboard.render(
+      canvas,
+      'Score: $score',
+      Vector2(20, 40),
+    );
+
+    // Active objects
     shipAngleTextPaint.render(
       canvas,
       'Objects active: ${children.length}',
@@ -85,17 +137,19 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
     );
   }
 
-  void fireBullet(double angle, Vector2 initialPosition, double initialSpeed) {
+  Future<void> fireBullet(
+      double angle, Vector2 initialPosition, double initialSpeed) async {
     final Vector2 velocity = Vector2(0, -1);
-    add(Bullet(
+    await add(Bullet(
       position: initialPosition,
       angle: angle,
       velocity: velocity,
       initialSpeed: initialSpeed,
     ));
+    numberOfBulletsShot++;
   }
 
-  void handleAsteroidTap(TapUpEvent event) {
+  Future<void> handleAsteroidTap(TapUpEvent event) async {
     // location of user's tap
     final Vector2 touchPoint = event.localPosition;
 
@@ -111,7 +165,7 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
     // this is a clean location with no shapes
     // create and add a new shape to the component tree under the FlameGame
     if (!handled) {
-      add(Asteroid()
+      await add(Asteroid()
         ..position = touchPoint
         ..size = Vector2.all(50)
         ..anchor = Anchor.center
@@ -120,11 +174,12 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   }
 
   Future<void> setup() async {
+    await cacheImages();
     // Parallax background
     await setupParallax();
 
     addOverlays();
-    addTimers();
+    await addTimers();
   }
 
   Future<void> togglePause() async {
@@ -157,13 +212,55 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
     return countdown;
   }
 
-  void addTimers() {
-    // Interval timer (runs every 10 seconds)
-    add(timer);
+  Future<void> addTimers() async {
+    // Interval timer (runs every 4 seconds)
+    intervalTimer = TimerComponent(
+      period: 4.00,
+      removeOnFinish: true,
+      onTick: () async {
+        final Vector2 rndPosition =
+            Utils.generateRandomPosition(size, Vector2.all(50));
+        final Vector2 rndVelocity = Utils.generateRandomDirection();
+        final double rndSpeed = Utils.generateRandomSpeed(20, 100);
+
+        final Ball ball =
+            Ball(rndPosition, rndVelocity, rndSpeed, elapsedTicks);
+
+        await add(ball);
+
+        elapsedTicks++;
+
+        if (elapsedTicks > numSimulationObjects) {
+          intervalTimer.timer.stop();
+          remove(intervalTimer);
+        }
+      },
+      repeat: true,
+    );
+
+    // Spawn timer
+    spawnTimer = TimerComponent(
+      period: 4.00,
+      removeOnFinish: true,
+      onTick: () async {
+        if (!isPlayerAlive()) {
+          playerLivesLeft--;
+          if (playerLivesLeft >= 0) {
+            player = JoystickPlayer(joystick);
+            await add(player);
+          }
+        }
+      },
+      repeat: true,
+    );
+
     // Countdown timer
-    final TimerComponent countdown = createCountdownTimer();
-    countdown.timer.start();
-    add(countdown);
+    final TimerComponent countdownTimer = createCountdownTimer();
+    countdownTimer.timer.start();
+
+    await add(countdownTimer);
+    await add(intervalTimer);
+    await add(spawnTimer);
   }
 
   void addOverlays() {
@@ -191,6 +288,25 @@ class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
       ),
     );
 
-    add(parallax);
+    await add(parallax);
+  }
+
+  Future<void> cacheImages() async {
+    await images.load('parallax/big_stars.png');
+    await images.load('parallax/small_stars.png');
+    await images.load('boom.png');
+    await images.load('asteroids_ship.png');
+  }
+
+  bool isPlayerAlive() {
+    bool result = false;
+
+    if (children.any((Component element) => element is JoystickPlayer)) {
+      result = true;
+    } else {
+      result = false;
+    }
+
+    return result;
   }
 }

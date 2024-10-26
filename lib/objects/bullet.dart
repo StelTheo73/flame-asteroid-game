@@ -1,3 +1,4 @@
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_audio/flame_audio.dart';
@@ -10,14 +11,8 @@ import '../utils/utils.dart';
 //   'laser_004.wav',
 // ]);
 
-class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
-  static final _paint = Paint()..color = Colors.white;
-  // the bullet speed in pixels per second
-  late final double _speed;
-
-  // velocity vector for the bullet.
-  late Vector2 _velocity;
-
+class Bullet extends PositionComponent
+    with HasGameRef<AsteroidGame>, CollisionCallbacks {
   Bullet({
     required Vector2 position,
     required Vector2 velocity,
@@ -32,12 +27,19 @@ class Bullet extends PositionComponent with HasGameRef<AsteroidGame> {
     _velocity = velocity;
     _speed = initialSpeed + 150;
   }
+  static final Paint _paint = Paint()..color = Colors.white;
+  // the bullet speed in pixels per second
+  late final double _speed;
+
+  // velocity vector for the bullet.
+  late Vector2 _velocity;
 
   @override
   Future<void> onLoad() async {
-    FlameAudio.play('missile_shot.wav');
-    FlameAudio.play('missile_flyby.wav');
     await super.onLoad();
+    await add(RectangleHitbox());
+    await FlameAudio.play('missile_shot.wav');
+    await FlameAudio.play('missile_flyby.wav');
     // _velocity is a unit vector so we need to make it account for the actual
     // speed.
     _velocity = _velocity..scaleTo(_speed);
