@@ -10,8 +10,12 @@ import 'objects/asteroid.dart';
 import 'objects/bullet.dart';
 import 'objects/joystick_player.dart';
 
+import 'routes/route.dart';
+
 class AsteroidGame extends FlameGame<World> with DragCallbacks, TapCallbacks {
   bool running = true;
+
+  late final GameRouter router;
 
   late final JoystickPlayer player;
   late final JoystickComponent joystick;
