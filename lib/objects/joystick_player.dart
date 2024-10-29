@@ -26,7 +26,7 @@ class JoystickPlayer extends SpriteComponent
     super.onLoad();
     sprite = await gameRef.loadSprite('asteroids_ship.png');
     position = gameRef.size / 2;
-    add(RectangleHitbox());
+    add(CircleHitbox());
   }
 
   @override
@@ -54,7 +54,7 @@ class JoystickPlayer extends SpriteComponent
     return joystick.relativeDelta * maxSpeed;
   }
 
-  void shake() {
+  Future<void> shake() async {
     // shake effect has to be re-declared every time we want to use it,
     // because it's a one-time effect.
     // Otherwise, it will apply the effect only once.
@@ -62,6 +62,11 @@ class JoystickPlayer extends SpriteComponent
       Vector2(0, 5),
       ZigzagEffectController(period: 0.2),
     );
-    add(shakeEffect);
+    await add(shakeEffect);
+  }
+
+  void reset() {
+    position = gameRef.size / 2;
+    angle = 0;
   }
 }

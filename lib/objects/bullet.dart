@@ -38,8 +38,8 @@ class Bullet extends PositionComponent
   Future<void> onLoad() async {
     await super.onLoad();
     await add(RectangleHitbox());
-    await FlameAudio.play('missile_shot.wav');
-    await FlameAudio.play('missile_flyby.wav');
+    await FlameAudio.play('missile_shot.wav', volume: 0.5);
+    await FlameAudio.play('missile_flyby.wav', volume: 0.2);
     // _velocity is a unit vector so we need to make it account for the actual
     // speed.
     _velocity = _velocity..scaleTo(_speed);
@@ -52,13 +52,13 @@ class Bullet extends PositionComponent
   }
 
   @override
-  void update(double dt) {
+  Future<void> update(double dt) async {
     position.add(_velocity * dt);
 
     if (Utils.isPositionOutOfBounds(gameRef.size, position)) {
       FlameAudio.play('missile_hit.wav');
       removeFromParent(); // gameRef.remove(this);
-      gameRef.player.shake();
+      await gameRef.player.shake();
     }
   }
 }

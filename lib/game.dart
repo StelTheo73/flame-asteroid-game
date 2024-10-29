@@ -16,7 +16,7 @@ class AsteroidGame extends FlameGame<World>
     with DragCallbacks, TapCallbacks, HasCollisionDetection {
   bool running = true;
 
-  late JoystickPlayer player;
+  late final JoystickPlayer player;
   late final JoystickComponent joystick;
   late final ParallaxComponent<FlameGame<World>> parallax;
   final Vector2 parallaxBaseVelocity = Vector2(0, -25);
@@ -67,9 +67,6 @@ class AsteroidGame extends FlameGame<World>
 
     await add(player);
     await add(joystick);
-    // camera.follow(player);
-
-    // print(images.keys);
   }
 
   @override
@@ -80,9 +77,17 @@ class AsteroidGame extends FlameGame<World>
       return;
     }
     final Vector2 velocity = parallaxBaseVelocity.clone();
+    final Vector2 playerVelocity = player.getVelocity();
     velocity.rotate(player.angle);
-    parallax.parallax?.baseVelocity = player.getVelocity() + velocity;
-    super.update(dt);
+    parallax.parallax?.baseVelocity = playerVelocity + velocity;
+
+    try {
+      super.update(dt);
+    } catch (e) {
+      print('====== ERROR ======');
+      print('===================');
+      print('Error updating game: $e');
+    }
   }
 
   @override
@@ -91,7 +96,10 @@ class AsteroidGame extends FlameGame<World>
       return;
     }
     // handleAsteroidTap(event);
-    await fireBullet(player.angle, player.position, player.getSpeed());
+    if (isPlayerAlive()) {
+      await fireBullet(player.angle, player.position, player.getSpeed());
+    }
+
     super.onTapUp(event);
   }
 
@@ -246,7 +254,8 @@ class AsteroidGame extends FlameGame<World>
         if (!isPlayerAlive()) {
           playerLivesLeft--;
           if (playerLivesLeft >= 0) {
-            player = JoystickPlayer(joystick);
+            // player = JoystickPlayer(joystick);
+            player.reset();
             await add(player);
           }
         }
@@ -299,14 +308,9 @@ class AsteroidGame extends FlameGame<World>
   }
 
   bool isPlayerAlive() {
-    bool result = false;
-
     if (children.any((Component element) => element is JoystickPlayer)) {
-      result = true;
-    } else {
-      result = false;
+      return true;
     }
-
-    return result;
+    return false;
   }
 }

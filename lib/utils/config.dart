@@ -2,11 +2,13 @@ import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
 
 class Configuration {
-  late bool debugMode;
+  late final bool debugMode;
+  late final bool music;
 
   Future<void> loadConfiguration() async {
     final String yamlString = await rootBundle.loadString('config/config.yml');
-    final yaml = loadYaml(yamlString) ?? {};
+    final dynamic yaml = loadYaml(yamlString) ?? <String, dynamic>{};
     debugMode = yaml['debugMode'] as bool? ?? false;
+    music = yaml['music'] as bool? ?? false;
   }
 }

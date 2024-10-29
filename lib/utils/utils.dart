@@ -9,11 +9,10 @@ class Utils {
   static final Random randomGenerator = Random();
 
   static Vector2 randomVector() {
-    final Random rnd = Random();
     const int min = -1;
     const int max = 1;
-    final double numX = min + ((max - min) * rnd.nextDouble());
-    final double numY = min + ((max - min) * rnd.nextDouble());
+    final double numX = min + ((max - min) * randomGenerator.nextDouble());
+    final double numY = min + ((max - min) * randomGenerator.nextDouble());
     return Vector2(numX, numY);
   }
 

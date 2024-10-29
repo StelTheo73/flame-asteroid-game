@@ -1,36 +1,47 @@
+import 'dart:math';
+
 import 'package:flame/cache.dart';
 import 'package:flame/components.dart';
 import 'package:flame/particles.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-import '../utils/utils.dart';
-
 /// Particle Generator Function for creation of explosion simulation
 class ParticleGenerator {
+  static final Random random = Random();
+
   static ParticleSystemComponent createParticleExplosion(
       {required Vector2 position}) {
     return ParticleSystemComponent(
-      particle: Particle.generate(
-        count: 45,
-        lifespan: 1,
-        generator: (int i) => AcceleratedParticle(
-          acceleration: Utils.randomVector()..scale(200),
-          position: position,
-          child: CircleParticle(
-            paint: Paint()..color = Colors.red,
-            radius: 1,
-          ),
+      position: position,
+      particle: ComposedParticle(
+        children: List<Particle>.generate(
+          45,
+          (int i) {
+            final double angle = random.nextDouble() * 2 * pi;
+            final Vector2 acceleration =
+                Vector2(cos(angle), sin(angle)) * random.nextDouble() * 50;
+            final Vector2 speed =
+                Vector2(cos(angle), sin(angle)) * random.nextDouble() * 10;
+            return AcceleratedParticle(
+              acceleration: acceleration,
+              speed: speed,
+              child: ScalingParticle(
+                child: CircleParticle(
+                  paint: Paint()..color = Colors.red,
+                  radius: 2,
+                ),
+              ),
+            );
+          },
         ),
+        lifespan: 2,
       ),
     );
   }
 
   static ParticleSystemComponent createSpriteParticleExplosion(
       {required Images images, required Vector2 position}) {
-    position.sub(Vector2(200, 250));
-    //position.x = position.x - 200;
-    //position.y = position.y + 100;
     return ParticleSystemComponent(
       // use AcceleratedParticle as just a position holder
       particle: AcceleratedParticle(

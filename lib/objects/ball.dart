@@ -10,15 +10,11 @@ import 'joystick_player.dart';
 import 'lifebar_text.dart';
 import 'particle.dart';
 
-/// Collidable object that models a ball on the screen
-///
-///
-///
 class Ball extends CircleComponent
     with HasGameRef<AsteroidGame>, CollisionCallbacks {
   /// Default constructor with hardcoded radius and a hitbox definition
   Ball(Vector2 position, Vector2 velocity, double speed, int ordinalNumber)
-      : super(position: position, radius: 10, anchor: Anchor.center) {
+      : super(position: position, radius: 20, anchor: Anchor.center) {
     xDirection = velocity.x.toInt();
     yDirection = velocity.y.toInt();
     _speed = speed;
@@ -27,15 +23,11 @@ class Ball extends CircleComponent
       ..x = 0
       ..y = -size.y / 2;
   }
-  final _collisionColor = Colors.amber;
-  final _defaultColor = Colors.cyan;
-  Color _currentColor = Colors.cyan;
-  bool _isWallHit = false;
-  bool _isCollision = false;
+  final Color _currentColor = Colors.cyan;
   late double _speed;
   late LifeBarText _healthText;
 
-  /// direction vector split into constituetn x and y elements
+  /// direction vector split into constituent x and y elements
   /// we start with the vector (1, 1) which is pointing down
   /// but do note that since we are randomly generating the direction
   /// in this exercise the initial values are irrelevant.
@@ -60,7 +52,7 @@ class Ball extends CircleComponent
   void update(double dt) {
     /// check for any unresolved collisions
     ///
-    final List keys = [];
+    final List<String> keys = <String>[];
     for (final MapEntry<String, Ball> other in collisions.entries) {
       final Ball otherObject = other.value;
       if (distance(otherObject) > size.x) {
@@ -102,9 +94,6 @@ class Ball extends CircleComponent
     _healthText.healthData = _objectLifeValue;
 
     /// remove this objects if its life has ended.
-    if (_objectLifeValue <= 0) {
-      parent?.remove(this);
-    }
 
     super.update(dt);
   }
@@ -125,8 +114,10 @@ class Ball extends CircleComponent
         position: other.position,
       ));
       await FlameAudio.play('missile_hit.wav', volume: 0.7);
-      gameRef.remove(this);
-      gameRef.remove(other);
+      _objectLifeValue = _objectLifeValue - 10;
+      try {
+        gameRef.remove(other);
+      } catch (e) {}
       // update the score
       gameRef.score++;
     }
@@ -136,9 +127,18 @@ class Ball extends CircleComponent
         position: other.position,
       ));
       await FlameAudio.play('missile_hit.wav', volume: 0.7);
-      // render the camera shake effect for a short duration
-      gameRef.player.shake();
-      gameRef.remove(gameRef.player);
+      await gameRef.player.shake();
+      if (gameRef.isPlayerAlive()) {
+        gameRef.remove(other);
+      }
+    }
+
+    if (_objectLifeValue <= 0 || other is JoystickPlayer) {
+      try {
+        gameRef.remove(this);
+      } catch (e) {
+        print('Error removing object: $e');
+      }
     }
   }
 }

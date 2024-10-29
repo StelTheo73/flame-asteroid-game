@@ -1,4 +1,3 @@
-import 'package:flame/cache.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
@@ -9,9 +8,14 @@ import 'game.dart';
 import 'utils/config.dart';
 
 class AsteroidGameWidget extends StatefulWidget {
-  const AsteroidGameWidget({super.key, this.debugMode = false});
+  const AsteroidGameWidget({
+    super.key,
+    this.debugMode = false,
+    required this.configuration,
+  });
 
   final bool debugMode;
+  final Configuration configuration;
 
   @override
   AsteroidGameWidgetState createState() => AsteroidGameWidgetState();
@@ -35,8 +39,8 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
     _game.debugMode = widget.debugMode;
 
     FlameAudio.bgm.initialize();
-    if (!widget.debugMode) {
-      FlameAudio.bgm.play('race_to_mars.mp3');
+    if (!widget.debugMode && widget.configuration.music) {
+      FlameAudio.bgm.play('race_to_mars.mp3', volume: 0.5);
     }
 
     super.initState();
@@ -79,6 +83,7 @@ Future<void> main() async {
   runApp(
     AsteroidGameWidget(
       debugMode: configuration.debugMode,
+      configuration: configuration,
     ),
   );
 }
