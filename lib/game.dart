@@ -254,10 +254,11 @@ class AsteroidGame extends FlameGame<World>
         if (!isPlayerAlive()) {
           playerLivesLeft--;
           if (playerLivesLeft >= 0) {
-            // player = JoystickPlayer(joystick);
             player.reset();
             await add(player);
+            return;
           }
+          remove(spawnTimer);
         }
       },
       repeat: true,

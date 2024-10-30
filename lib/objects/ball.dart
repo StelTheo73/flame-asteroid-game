@@ -93,15 +93,12 @@ class Ball extends CircleComponent
     }
     _healthText.healthData = _objectLifeValue;
 
-    /// remove this objects if its life has ended.
-
     super.update(dt);
   }
 
   @override
   void render(Canvas canvas) {
     super.render(canvas);
-    // rs(canvas);
     paint = Paint()..color = _currentColor;
   }
 
@@ -109,14 +106,16 @@ class Ball extends CircleComponent
   Future<void> onCollision(
       Set<Vector2> intersectionPoints, PositionComponent other) async {
     super.onCollision(intersectionPoints, other);
+    final Vector2 animationPosition = other.position.clone();
+
     if (other is Bullet) {
       await gameRef.add(ParticleGenerator.createParticleExplosion(
-        position: other.position,
+        position: animationPosition,
       ));
       await FlameAudio.play('missile_hit.wav', volume: 0.7);
       _objectLifeValue = _objectLifeValue - 10;
       try {
-        gameRef.remove(other);
+        other.removeFromParent();
       } catch (e) {}
       // update the score
       gameRef.score++;
@@ -124,21 +123,19 @@ class Ball extends CircleComponent
     if (other is JoystickPlayer) {
       await gameRef.add(ParticleGenerator.createSpriteParticleExplosion(
         images: gameRef.images,
-        position: other.position,
+        position: animationPosition,
       ));
       await FlameAudio.play('missile_hit.wav', volume: 0.7);
       await gameRef.player.shake();
       if (gameRef.isPlayerAlive()) {
-        gameRef.remove(other);
+        other.removeFromParent();
       }
     }
 
     if (_objectLifeValue <= 0 || other is JoystickPlayer) {
       try {
-        gameRef.remove(this);
-      } catch (e) {
-        print('Error removing object: $e');
-      }
+        removeFromParent();
+      } catch (e) {}
     }
   }
 }

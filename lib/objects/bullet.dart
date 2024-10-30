@@ -7,10 +7,6 @@ import 'package:flutter/material.dart';
 import '../game.dart';
 import '../utils/utils.dart';
 
-// FlameAudio.audioCache.loadAll([
-//   'laser_004.wav',
-// ]);
-
 class Bullet extends PositionComponent
     with HasGameRef<AsteroidGame>, CollisionCallbacks {
   Bullet({
