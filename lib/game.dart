@@ -8,17 +8,19 @@ import 'package:flutter/material.dart';
 
 import 'objects/asteroid.dart';
 import 'objects/ball.dart';
-import 'objects/bullet.dart';
-import 'objects/joystick_player.dart';
+import 'objects/spaceship.dart';
+import 'utils/command.dart';
+import 'utils/controller.dart';
 import 'utils/utils.dart';
 
 class AsteroidGame extends FlameGame<World>
     with DragCallbacks, TapCallbacks, HasCollisionDetection {
   bool running = true;
 
-  late final JoystickPlayer player;
+  late final Spaceship player;
   late final JoystickComponent joystick;
   late final ParallaxComponent<FlameGame<World>> parallax;
+  final Controller controller = Controller();
   final Vector2 parallaxBaseVelocity = Vector2(0, -25);
   final TextPaint shipAngleTextPaint = TextPaint();
 
@@ -63,8 +65,9 @@ class AsteroidGame extends FlameGame<World>
       margin: const EdgeInsets.only(left: 20, bottom: 20),
     );
 
-    player = JoystickPlayer(joystick);
+    player = Spaceship(joystick);
 
+    await add(controller);
     await add(player);
     await add(joystick);
   }
@@ -95,11 +98,7 @@ class AsteroidGame extends FlameGame<World>
     if (!running || !isPlayerAlive()) {
       return;
     }
-    // handleAsteroidTap(event);
-    if (isPlayerAlive()) {
-      await fireBullet(player.angle, player.position, player.getSpeed());
-    }
-
+    UserTapUpCommand(player).addToController(controller);
     super.onTapUp(event);
   }
 
@@ -145,23 +144,23 @@ class AsteroidGame extends FlameGame<World>
     );
   }
 
-  Future<void> fireBullet(
-      double angle, Vector2 initialPosition, double initialSpeed) async {
-    final Vector2 velocity = Vector2(0, -1);
-    await add(Bullet(
-      position: initialPosition,
-      angle: angle,
-      velocity: velocity,
-      initialSpeed: initialSpeed,
-    ));
-    numberOfBulletsShot++;
-  }
+  // Future<void> fireBullet(
+  //     double angle, Vector2 initialPosition, double initialSpeed) async {
+  //   final Vector2 velocity = Vector2(0, -1);
+  //   await add(Bullet(
+  //     position: initialPosition,
+  //     angle: angle,
+  //     velocity: velocity,
+  //     initialSpeed: initialSpeed,
+  //   ));
+  //   numberOfBulletsShot++;
+  // }
 
   Future<void> handleAsteroidTap(TapUpEvent event) async {
     // location of user's tap
     final Vector2 touchPoint = event.localPosition;
 
-    final bool handled = children.any((component) {
+    final bool handled = children.any((Component component) {
       if (component is Asteroid && component.containsPoint(touchPoint)) {
         component.velocity.negate();
         return true;
@@ -309,7 +308,7 @@ class AsteroidGame extends FlameGame<World>
   }
 
   bool isPlayerAlive() {
-    if (children.any((Component element) => element is JoystickPlayer)) {
+    if (children.any((Component element) => element is Spaceship)) {
       return true;
     }
     return false;

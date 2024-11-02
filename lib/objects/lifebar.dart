@@ -119,19 +119,16 @@ class LifeBar extends PositionComponent {
         {
           result = Vector2(0, -_size.y - _barToParentOffset);
         }
-        break;
       case LifeBarPlacement.center:
         {
           result = Vector2(
               _parentSize.x - _size.x / 2, -_size.y - _barToParentOffset);
         }
-        break;
       case LifeBarPlacement.right:
         {
           result =
               Vector2(_parentSize.x - _size.x, -_size.y - _barToParentOffset);
         }
-        break;
     }
 
     return result;
@@ -139,7 +136,7 @@ class LifeBar extends PositionComponent {
 
   @override
   Future<void> onLoad() async {
-    _lifeBarElements = [
+    _lifeBarElements = <RectangleComponent>[
       // Outline
       RectangleComponent(
         position: _calculateBarPosition(),

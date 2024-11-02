@@ -52,7 +52,7 @@ class Bullet extends PositionComponent
     position.add(_velocity * dt);
 
     if (Utils.isPositionOutOfBounds(gameRef.size, position)) {
-      FlameAudio.play('missile_hit.wav');
+      await FlameAudio.play('missile_hit.wav');
       removeFromParent(); // gameRef.remove(this);
       await gameRef.player.shake();
     }

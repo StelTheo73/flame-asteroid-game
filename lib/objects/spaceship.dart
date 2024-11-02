@@ -3,13 +3,15 @@ import 'dart:math' show pow, sqrt;
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flutter/material.dart' show Colors, Paint;
 
 import '../game.dart';
 import '../utils/utils.dart';
+import 'bullet.new.dart';
 
-class JoystickPlayer extends SpriteComponent
+class Spaceship extends SpriteComponent
     with HasGameRef<AsteroidGame>, CollisionCallbacks {
-  JoystickPlayer(this.joystick)
+  Spaceship(this.joystick)
       : super(
           size: Vector2.all(50.0),
         ) {
@@ -20,13 +22,23 @@ class JoystickPlayer extends SpriteComponent
   double maxSpeed = 300.0;
 
   final JoystickComponent joystick;
+  final BulletEnum _bulletType = BulletEnum.FastBullet;
+
+  // Muzzle component is the point where the bullet will spawn
+  RectangleComponent muzzleComponent = RectangleComponent(
+    size: Vector2(1, 1),
+    paint: Paint()..color = Colors.transparent,
+  );
 
   @override
   Future<void> onLoad() async {
     super.onLoad();
     sprite = await gameRef.loadSprite('asteroids_ship.png');
     position = gameRef.size / 2;
-    add(CircleHitbox());
+    muzzleComponent.position.x = size.x / 2;
+    muzzleComponent.position.y = size.y / 10;
+    await add(muzzleComponent);
+    await add(CircleHitbox());
   }
 
   @override
@@ -52,6 +64,10 @@ class JoystickPlayer extends SpriteComponent
 
   Vector2 getVelocity() {
     return joystick.relativeDelta * maxSpeed;
+  }
+
+  BulletEnum getBulletType() {
+    return _bulletType;
   }
 
   Future<void> shake() async {

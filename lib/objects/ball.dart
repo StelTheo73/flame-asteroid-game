@@ -6,9 +6,9 @@ import 'package:flutter/material.dart';
 
 import '../game.dart';
 import 'bullet.dart';
-import 'joystick_player.dart';
 import 'lifebar_text.dart';
 import 'particle.dart';
+import 'spaceship.dart';
 
 class Ball extends CircleComponent
     with HasGameRef<AsteroidGame>, CollisionCallbacks {
@@ -59,7 +59,7 @@ class Ball extends CircleComponent
         keys.add(other.key);
       }
     }
-    collisions.removeWhere((key, value) => keys.contains(key));
+    collisions.removeWhere((String key, Ball value) => keys.contains(key));
 
     x += xDirection * _speed * dt;
     y += yDirection * _speed * dt;
@@ -120,7 +120,7 @@ class Ball extends CircleComponent
       // update the score
       gameRef.score++;
     }
-    if (other is JoystickPlayer) {
+    if (other is Spaceship) {
       await gameRef.add(ParticleGenerator.createSpriteParticleExplosion(
         images: gameRef.images,
         position: animationPosition,
@@ -132,7 +132,7 @@ class Ball extends CircleComponent
       }
     }
 
-    if (_objectLifeValue <= 0 || other is JoystickPlayer) {
+    if (_objectLifeValue <= 0 || other is Spaceship) {
       try {
         removeFromParent();
       } catch (e) {}
