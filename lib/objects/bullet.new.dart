@@ -2,7 +2,7 @@ import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 
-import '../game.dart';
+import '../game/game.dart';
 
 enum BulletEnum { SlowBullet, FastBullet }
 

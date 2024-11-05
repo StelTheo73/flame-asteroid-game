@@ -6,12 +6,11 @@ import 'package:flame/parallax.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
-import 'objects/asteroid.dart';
-import 'objects/ball.dart';
-import 'objects/spaceship.dart';
-import 'utils/command.dart';
-import 'utils/controller.dart';
-import 'utils/utils.dart';
+import '../objects/ball.dart';
+import '../objects/spaceship.dart';
+import '../utils/command.dart';
+import '../utils/controller.dart';
+import '../utils/utils.dart';
 
 class AsteroidGame extends FlameGame<World>
     with DragCallbacks, TapCallbacks, HasCollisionDetection {
@@ -142,42 +141,6 @@ class AsteroidGame extends FlameGame<World>
       'Objects active: ${children.length}',
       Vector2(20, size.y - 24),
     );
-  }
-
-  // Future<void> fireBullet(
-  //     double angle, Vector2 initialPosition, double initialSpeed) async {
-  //   final Vector2 velocity = Vector2(0, -1);
-  //   await add(Bullet(
-  //     position: initialPosition,
-  //     angle: angle,
-  //     velocity: velocity,
-  //     initialSpeed: initialSpeed,
-  //   ));
-  //   numberOfBulletsShot++;
-  // }
-
-  Future<void> handleAsteroidTap(TapUpEvent event) async {
-    // location of user's tap
-    final Vector2 touchPoint = event.localPosition;
-
-    final bool handled = children.any((Component component) {
-      if (component is Asteroid && component.containsPoint(touchPoint)) {
-        component.velocity.negate();
-        return true;
-      }
-      return false;
-    });
-
-    //
-    // this is a clean location with no shapes
-    // create and add a new shape to the component tree under the FlameGame
-    if (!handled) {
-      await add(Asteroid()
-        ..position = touchPoint
-        ..size = Vector2.all(50)
-        ..anchor = Anchor.center
-        ..paint = paint);
-    }
   }
 
   Future<void> setup() async {

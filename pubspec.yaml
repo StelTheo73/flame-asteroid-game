@@ -67,6 +67,7 @@ flutter:
     - assets/audio/
     - assets/images/
     - assets/images/parallax/
+    - assets/levels/levels.yml
     - config/
 
   # An image asset can refer to one or more resolution-specific "variants", see

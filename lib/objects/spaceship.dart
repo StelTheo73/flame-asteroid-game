@@ -5,7 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flutter/material.dart' show Colors, Paint;
 
-import '../game.dart';
+import '../game/game.dart';
 import '../utils/utils.dart';
 import 'bullet.new.dart';
 

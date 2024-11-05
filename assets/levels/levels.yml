@@ -1,0 +1,83 @@
+game_data:
+  resolution:
+    x: 640
+    y: 480
+
+  levels:
+    - id: 1
+      asteroids:
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: largeAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: mediumAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: smallAsteroid
+      gameBonus:
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          trigger.time.seconds: 50
+          name: ufoBonus
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          trigger.time.seconds: 50
+          name: ufoBonus
+
+    - id: 2
+      asteroids:
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: largeAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: mediumAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: smallAsteroid
+
+    - id: 3
+      asteroids:
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: largeAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: mediumAsteroid
+        - position.x: 20
+          position.y: 30
+          velocity.x: 30
+          velocity.y: 50
+          speed: 125
+          name: smallAsteroid

@@ -1,6 +1,6 @@
 import 'package:flame/components.dart';
 
-import '../game.dart';
+import '../game/game.dart';
 import '../objects/spaceship.dart';
 import './command.dart' show Command;
 

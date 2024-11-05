@@ -1,21 +1,18 @@
-import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 import 'components/Buttons/PauseButton.dart';
-import 'game.dart';
+import 'game/game.dart';
+import 'pages/home.dart';
 import 'utils/config.dart';
 
 class AsteroidGameWidget extends StatefulWidget {
-  const AsteroidGameWidget({
+  AsteroidGameWidget({
     super.key,
-    this.debugMode = false,
-    required this.configuration,
   });
 
-  final bool debugMode;
-  final Configuration configuration;
+  final bool debugMode = Configuration.debugMode;
 
   @override
   AsteroidGameWidgetState createState() => AsteroidGameWidgetState();
@@ -39,7 +36,7 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
     _game.debugMode = widget.debugMode;
 
     FlameAudio.bgm.initialize();
-    if (!widget.debugMode && widget.configuration.music) {
+    if (!widget.debugMode && Configuration.music) {
       FlameAudio.bgm.play('race_to_mars.mp3', volume: 0.5);
     }
 
@@ -64,26 +61,25 @@ class AsteroidGameWidgetState extends State<AsteroidGameWidget> {
   }
 }
 
-Future<void> loadAssets() async {
-  await FlameAudio.audioCache.load('race_to_mars.mp3');
-  await FlameAudio.audioCache.load('missile_shot.wav');
-  await FlameAudio.audioCache.load('missile_flyby.wav');
-  await FlameAudio.audioCache.load('missile_hit.wav');
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const MaterialApp(
+      // Hide the debug banner
+      debugShowCheckedModeBanner: false,
+      title: 'Code a 2D Game in Flame',
+      home: HomePage(),
+    );
+  }
 }
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  Flame.device.fullScreen();
-  Flame.device.setPortrait();
-  await loadAssets();
-
-  final Configuration configuration = Configuration();
-  await configuration.loadConfiguration();
+  await Configuration.setup();
 
   runApp(
-    AsteroidGameWidget(
-      debugMode: configuration.debugMode,
-      configuration: configuration,
-    ),
+    // AsteroidGameWidget(),
+    const MyApp(),
   );
 }
