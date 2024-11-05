@@ -21,11 +21,11 @@ class _HomePageState extends State<HomePage> {
         centerTitle: true,
         title: const Text('Asteroids Game'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(25),
+      body: const Padding(
+        padding: EdgeInsets.all(25),
         child: Column(
           children: <Widget>[
-            LevelsWidget(),
+            LevelPage(),
           ],
         ),
       ),

@@ -2,7 +2,7 @@ import 'package:flame/components.dart';
 
 import 'game.dart';
 
-class Level {
+class Level extends World with HasGameRef<AsteroidGame> {
   // Future<void> setup() async {}
 
   Future<void> addAsteroids(
@@ -19,8 +19,7 @@ class Level {
       print('${data['speed']}');
       print('===================\n');
 
-      // await asteroid.add();
-      // this method should use gameRef.add(asteroid)
+      // gameRef.add(asteroid);
     }
   }
 }

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-
-import '../game/level.dart';
 import '../utils/config.dart';
 
-class LevelsWidget extends StatefulWidget {
+class LevelPage extends StatefulWidget {
+  const LevelPage({super.key});
+
   @override
-  LevelsWidgetState createState() => LevelsWidgetState();
+  LevelPageState createState() => LevelPageState();
 }
 
-class LevelsWidgetState extends State<LevelsWidget> {
+class LevelPageState extends State<LevelPage> {
   late Future<List<dynamic>> levelsFuture;
 
   @override
@@ -43,9 +43,10 @@ class LevelsWidgetState extends State<LevelsWidget> {
                       'Level ${index + 1}',
                     ),
                     onTap: () {
-                      final Level level = Level();
-                      level.addAsteroids(
-                        snapshot.data![index]['asteroids'] as List<dynamic>,
+                      Navigator.pushNamed(
+                        context,
+                        '/game',
+                        arguments: snapshot.data![index],
                       );
                     },
                     subtitle: const Text('Level info here!'),

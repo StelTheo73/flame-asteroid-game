@@ -5,6 +5,7 @@ import 'package:flame/palette.dart';
 import 'package:flame/parallax.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
+import 'package:yaml/yaml.dart';
 
 import '../objects/ball.dart';
 import '../objects/spaceship.dart';
@@ -14,7 +15,10 @@ import '../utils/utils.dart';
 
 class AsteroidGame extends FlameGame<World>
     with DragCallbacks, TapCallbacks, HasCollisionDetection {
+  AsteroidGame({required this.levelData});
+
   bool running = true;
+  final YamlMap levelData;
 
   late final Spaceship player;
   late final JoystickComponent joystick;
@@ -144,6 +148,9 @@ class AsteroidGame extends FlameGame<World>
   }
 
   Future<void> setup() async {
+    print('Setting up game');
+    print('level data: $levelData');
+
     await cacheImages();
     // Parallax background
     await setupParallax();
