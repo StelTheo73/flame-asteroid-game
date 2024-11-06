@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:yaml/yaml.dart';
 
 class Configuration {
+  static late final YamlMap app;
   static late final bool debugMode;
   static late final bool music;
   // static late final Map<String, int> resolution;
@@ -30,6 +31,7 @@ class Configuration {
     final dynamic yaml = loadYaml(yamlString) ?? <String, dynamic>{};
     Configuration.debugMode = yaml['debugMode'] as bool? ?? false;
     Configuration.music = yaml['music'] as bool? ?? false;
+    Configuration.app = yaml['app'] as YamlMap;
   }
 
   static Future<List<dynamic>> loadLevels() async {

@@ -1,2 +1,6 @@
 debugMode: false
 music: false
+app:
+  author: 'StelTheo73'
+  name: 'Asteroid Game'
+  version: '1.0.0'

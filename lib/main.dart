@@ -3,6 +3,7 @@ import 'package:yaml/yaml.dart';
 
 import 'pages/game.dart';
 import 'pages/home.dart';
+import 'pages/routes.dart';
 import 'utils/config.dart';
 
 class MyApp extends StatelessWidget {
@@ -13,16 +14,16 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       // Hide the debug banner
       debugShowCheckedModeBanner: false,
-      title: 'Code a 2D Game in Flame',
+      title: Configuration.app['name']! as String,
       routes: <String, WidgetBuilder>{
-        '/': (BuildContext context) => const HomePage(),
-        '/game': (BuildContext context) {
+        AppRoute.home.route: (BuildContext context) => const HomePage(),
+        AppRoute.game.route: (BuildContext context) {
           final YamlMap levelData =
               ModalRoute.of(context)!.settings.arguments! as YamlMap;
           return AsteroidGamePage(levelData: levelData);
         },
       },
-      initialRoute: '/',
+      initialRoute: AppRoute.home.route,
     );
   }
 }
@@ -31,7 +32,6 @@ Future<void> main() async {
   await Configuration.setup();
 
   runApp(
-    // AsteroidGameWidget(),
     const MyApp(),
   );
 }

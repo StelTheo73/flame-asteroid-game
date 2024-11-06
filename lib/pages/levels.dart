@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/config.dart';
+import 'routes.dart';
 
 class LevelPage extends StatefulWidget {
   const LevelPage({super.key});
@@ -45,7 +46,7 @@ class LevelPageState extends State<LevelPage> {
                     onTap: () {
                       Navigator.pushNamed(
                         context,
-                        '/game',
+                        AppRoute.game.route,
                         arguments: snapshot.data![index],
                       );
                     },

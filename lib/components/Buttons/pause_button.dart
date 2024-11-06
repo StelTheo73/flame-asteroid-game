@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../pages/routes.dart';
+
 class PauseButton extends StatelessWidget {
   const PauseButton({super.key, required this.onPressed});
   final VoidCallback onPressed;
@@ -23,7 +25,7 @@ class PauseButton extends StatelessWidget {
               backgroundColor: Colors.red,
             ),
             onPressed: () async {
-              await Navigator.popAndPushNamed(context, '/');
+              await Navigator.popAndPushNamed(context, AppRoute.home.route);
               // Navigator.of(context)
               // .pushNamedAndRemoveUntil('/', (route) => false);
             },
