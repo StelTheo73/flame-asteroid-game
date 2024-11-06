@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yaml/yaml.dart';
 import '../utils/config.dart';
 import 'routes.dart';
 
@@ -47,7 +48,7 @@ class LevelPageState extends State<LevelPage> {
                       Navigator.pushNamed(
                         context,
                         AppRoute.game.route,
-                        arguments: snapshot.data![index],
+                        arguments: index,
                       );
                     },
                     subtitle: const Text('Level info here!'),

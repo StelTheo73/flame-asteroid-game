@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../utils/config.dart';
 import '../utils/controller.dart';
 import 'levels.dart';
 
@@ -19,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: const Text('Asteroids Game'),
+        title: Text(Configuration.app['name']! as String),
       ),
       body: const Padding(
         padding: EdgeInsets.all(25),

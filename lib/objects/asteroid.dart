@@ -14,7 +14,16 @@ import '../game/game.dart';
 ///  - add a new enumeration entry
 ///  - add a new switch case to the [AsteroidFactory] to create this
 ///    new [Asteroid] instance when the enumeration entry is provided.
-enum AsteroidEnum { largeAsteroid, mediumAsteroid, smallAsteroid }
+enum AsteroidEnum {
+  largeAsteroid,
+  mediumAsteroid,
+  smallAsteroid;
+
+  static AsteroidEnum fromString(String value) {
+    return AsteroidEnum.values.firstWhere(
+        (e) => e.toString().split('.')[1].toUpperCase() == value.toUpperCase());
+  }
+}
 
 // Bullet class is a [PositionComponent] so we get the angle and position of the
 /// element.
@@ -131,10 +140,9 @@ class SmallAsteroid extends Asteroid {
   }
   //
   // named constructor
-  SmallAsteroid.fullInit(Vector2 position, Vector2 velocity, Vector2 size,
+  SmallAsteroid.fullInit(super.position, super.velocity, super.size,
       double? speed, int? health, int? damage)
-      : super.fullInit(position, velocity, size,
-            speed: speed, health: health, damage: damage) {
+      : super.fullInit(speed: speed, health: health, damage: damage) {
     add(CircleHitbox());
   }
   static const double defaultSpeed = 150.0;
@@ -180,16 +188,146 @@ class SmallAsteroid extends Asteroid {
   }
 }
 
+/// This class creates a fast bullet implementation of the [Bullet] contract and
+/// renders the bullet as a simple green square.
+/// Speed has been defaulted to 150 p/s but can be changed through the
+/// constructor. It is set with a damage of 1 which is the lowest damage and
+/// with health of 1 which means that it will be destroyed on impact since it
+/// is also the lowest health you can have.
+///
+class MediumAsteroid extends Asteroid {
+  MediumAsteroid(super.position, super.velocity, super.size)
+      : super.fullInit(
+            speed: defaultSpeed,
+            health: Asteroid.defaultHealth,
+            damage: Asteroid.defaultDamage) {
+    add(CircleHitbox());
+  }
+  //
+  // named constructor
+  MediumAsteroid.fullInit(super.position, super.velocity, super.size,
+      double? speed, int? health, int? damage)
+      : super.fullInit(speed: speed, health: health, damage: damage) {
+    add(CircleHitbox());
+  }
+  static const double defaultSpeed = 150.0;
+  // color of the asteroid
+  static final Paint _paint = Paint()..color = Colors.green;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    // _velocity is a unit vector so we need to make it account for the actual
+    // speed.
+    print("MediumAsteroid onLoad called: speed: $_speed");
+    _velocity = _velocity..scaleTo(_speed);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    final localCenter = (scaledSize / 2).toOffset();
+    canvas.drawCircle(localCenter, 8, _paint);
+  }
+
+  @override
+  void update(double dt) {
+    position.add(_velocity * dt);
+  }
+
+  @override
+  void onCreate() {
+    print("MediumAsteroid onCreate called");
+  }
+
+  @override
+  void onDestroy() {
+    print("MediumAsteroid onDestroy called");
+  }
+
+  @override
+  Future<void> onCollision(
+      Set<Vector2> intersectionPoints, PositionComponent other) async {
+    print("MediumAsteroid onCollision called");
+    super.onCollision(intersectionPoints, other);
+  }
+}
+
+/// This class creates a fast bullet implementation of the [Bullet] contract and
+/// renders the bullet as a simple green square.
+/// Speed has been defaulted to 150 p/s but can be changed through the
+/// constructor. It is set with a damage of 1 which is the lowest damage and
+/// with health of 1 which means that it will be destroyed on impact since it
+/// is also the lowest health you can have.
+///
+class LargeAsteroid extends Asteroid {
+  LargeAsteroid(super.position, super.velocity, super.size)
+      : super.fullInit(
+            speed: defaultSpeed,
+            health: Asteroid.defaultHealth,
+            damage: Asteroid.defaultDamage) {
+    add(CircleHitbox());
+  }
+  //
+  // named constructor
+  LargeAsteroid.fullInit(super.position, super.velocity, super.size,
+      double? speed, int? health, int? damage)
+      : super.fullInit(speed: speed, health: health, damage: damage) {
+    add(CircleHitbox());
+  }
+  static const double defaultSpeed = 150.0;
+  // color of the asteroid
+  static final Paint _paint = Paint()..color = Colors.green;
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    // _velocity is a unit vector so we need to make it account for the actual
+    // speed.
+    print("LargeAsteroid onLoad called: speed: $_speed");
+    _velocity = _velocity..scaleTo(_speed);
+  }
+
+  @override
+  void render(Canvas canvas) {
+    super.render(canvas);
+    final localCenter = (scaledSize / 2).toOffset();
+    canvas.drawCircle(localCenter, 8, _paint);
+  }
+
+  @override
+  void update(double dt) {
+    position.add(_velocity * dt);
+  }
+
+  @override
+  void onCreate() {
+    print("LargeAsteroid onCreate called");
+  }
+
+  @override
+  void onDestroy() {
+    print("LargeAsteroid onDestroy called");
+  }
+
+  @override
+  Future<void> onCollision(
+      Set<Vector2> intersectionPoints, PositionComponent other) async {
+    print("LargeAsteroid onCollision called");
+    super.onCollision(intersectionPoints, other);
+  }
+}
+
 /// This is a Factory Method Design pattern example implementation for Asteroids
 /// in our game.
 ///
-/// The class will return an instance of the specific asteroid aksed for based
+/// The class will return an instance of the specific asteroid asked for based
 /// on a valid asteroid type choice.
 class AsteroidFactory {
   /// private constructor to prevent instantiation
   AsteroidFactory._();
 
-  /// main factory method to create instaces of Bullet children
+  /// main factory method to create instances of Bullet children
   static Asteroid? create(AsteroidBuildContext context) {
     Asteroid? result;
 
@@ -198,12 +336,30 @@ class AsteroidFactory {
     //   // <TODO> creation logic
     // }
 
+    switch (context.asteroidType) {
+      case AsteroidEnum.largeAsteroid:
+        {
+          result = LargeAsteroid.fullInit(context.position, context.velocity,
+              context.size, context.speed, context.health, context.damage);
+          break;
+        }
+      case AsteroidEnum.mediumAsteroid:
+        {
+          result = MediumAsteroid.fullInit(context.position, context.velocity,
+              context.size, context.speed, context.health, context.damage);
+        }
+      case AsteroidEnum.smallAsteroid:
+        {
+          result = SmallAsteroid.fullInit(context.position, context.velocity,
+              context.size, context.speed, context.health, context.damage);
+        }
+    }
     return result;
   }
 }
 
-/// This is a simple data holder for the context data wehen we create a new
-/// Asteroid instace through the Factory method using the [AsteroidFactory]
+/// This is a simple data holder for the context data when we create a new
+/// Asteroid instance through the Factory method using the [AsteroidFactory]
 ///
 /// We have a number of default values here as well in case callers do not
 /// define all the entries.
@@ -212,8 +368,8 @@ class AsteroidBuildContext {
   static const double defaultSpeed = 0.0;
   static const int defaultHealth = 1;
   static const int defaultDamage = 1;
-  static final Vector2 deaultVelocity = Vector2.zero();
-  static final Vector2 deaultPosition = Vector2(-1, -1);
+  static final Vector2 defaultVelocity = Vector2.zero();
+  static final Vector2 defaultPosition = Vector2(-1, -1);
   static final Vector2 defaultSize = Vector2.zero();
   static final AsteroidEnum defaultAsteroidType = AsteroidEnum.values[0];
   static final Vector2 defaultMultiplier = Vector2.all(1.0);
@@ -227,8 +383,8 @@ class AsteroidBuildContext {
   }
 
   double speed = defaultSpeed;
-  Vector2 velocity = deaultVelocity;
-  Vector2 position = deaultPosition;
+  Vector2 velocity = defaultVelocity;
+  Vector2 position = defaultPosition;
   Vector2 size = defaultSize;
   int health = defaultHealth;
   int damage = defaultDamage;

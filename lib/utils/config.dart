@@ -8,6 +8,7 @@ class Configuration {
   static late final YamlMap app;
   static late final bool debugMode;
   static late final bool music;
+  static late List<dynamic> levels;
   // static late final Map<String, int> resolution;
 
   static Future<void> setup() async {
@@ -35,12 +36,23 @@ class Configuration {
   }
 
   static Future<List<dynamic>> loadLevels() async {
+    print('loading levels');
     final String yamlString =
         await rootBundle.loadString('assets/levels/levels.yml');
     final dynamic yaml = loadYaml(yamlString);
-    return yaml['game_data']['levels'] as List<dynamic>;
+    print('levels loaded');
+    levels = yaml['game_data']['levels'] as List<dynamic>;
+    print('level data: ');
+    print(levels);
+    return levels;
   }
 
+  static Future<YamlMap> getLevelData(int levelId) async {
+    if (levels.isEmpty) {
+      await loadLevels();
+    }
+    return levels[levelId] as YamlMap;
+  }
   // static Future<void> _loadResolution() async {
   //   final String yamlString =
   //       await rootBundle.loadString('assets/levels/levels.yml');

@@ -12,15 +12,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // Hide the debug banner
       debugShowCheckedModeBanner: false,
       title: Configuration.app['name']! as String,
       routes: <String, WidgetBuilder>{
         AppRoute.home.route: (BuildContext context) => const HomePage(),
         AppRoute.game.route: (BuildContext context) {
-          final YamlMap levelData =
-              ModalRoute.of(context)!.settings.arguments! as YamlMap;
-          return AsteroidGamePage(levelData: levelData);
+          final int levelId =
+              ModalRoute.of(context)!.settings.arguments! as int;
+          return AsteroidGamePage(levelId: levelId);
         },
       },
       initialRoute: AppRoute.home.route,

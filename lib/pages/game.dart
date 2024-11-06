@@ -1,7 +1,6 @@
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
-import 'package:yaml/yaml.dart';
 
 import '../components/Buttons/pause_button.dart';
 import '../game/game.dart';
@@ -10,10 +9,10 @@ import '../utils/config.dart';
 class AsteroidGamePage extends StatefulWidget {
   AsteroidGamePage({
     super.key,
-    required this.levelData,
+    required this.levelId,
   });
 
-  final YamlMap levelData;
+  final int levelId;
   final bool debugMode = Configuration.debugMode;
 
   @override
@@ -36,7 +35,7 @@ class AsteroidGamePageState extends State<AsteroidGamePage> {
 
   @override
   void initState() {
-    _game = AsteroidGame(levelData: widget.levelData);
+    _game = AsteroidGame(levelId: widget.levelId);
     _game.debugMode = widget.debugMode;
 
     FlameAudio.bgm.initialize();

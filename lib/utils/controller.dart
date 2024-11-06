@@ -1,8 +1,11 @@
 import 'package:flame/components.dart';
+import 'package:flutter/material.dart';
 
 import '../game/game.dart';
 import '../objects/spaceship.dart';
+import '../pages/routes.dart';
 import './command.dart' show Command;
+import 'config.dart';
 
 /// Broker is just a simple delegate to take care of processing lists of
 /// commands
@@ -57,6 +60,8 @@ class Controller extends Component with HasGameRef<AsteroidGame> {
   // the broker which executes all the commands
   final Broker _broker = Broker();
 
+  Future<void> init() async {}
+
   /// state data
   ///
   Spaceship getSpaceship() {
@@ -76,5 +81,25 @@ class Controller extends Component with HasGameRef<AsteroidGame> {
   /// schedule a [command] for processing by delegating it to the broker
   void addCommand(Command command) {
     _broker.addCommand(command);
+  }
+
+  Future<void> loadNextLevel() async {
+    if (gameRef.levelId == Configuration.levels.length) {
+      // TODO(StelTheo73): Add a game completed screen
+      Navigator.pushNamed(gameRef.buildContext!, AppRoute.home.route);
+      return;
+    }
+    gameRef.levelId += 1;
+    await gameRef.loadLevel();
+  }
+
+  bool _isCurrentLevelFinished() {
+    return gameRef.asteroids.isEmpty;
+  }
+
+  void timerNotification() {
+    if (_isCurrentLevelFinished()) {
+      loadNextLevel();
+    }
   }
 }

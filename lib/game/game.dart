@@ -7,18 +7,20 @@ import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:yaml/yaml.dart';
 
+import '../objects/asteroid.dart';
 import '../objects/ball.dart';
 import '../objects/spaceship.dart';
 import '../utils/command.dart';
+import '../utils/config.dart';
 import '../utils/controller.dart';
 import '../utils/utils.dart';
 
 class AsteroidGame extends FlameGame<World>
     with DragCallbacks, TapCallbacks, HasCollisionDetection {
-  AsteroidGame({required this.levelData});
+  AsteroidGame({required this.levelId});
 
   bool running = true;
-  final YamlMap levelData;
+  int levelId;
 
   late final Spaceship player;
   late final JoystickComponent joystick;
@@ -26,6 +28,8 @@ class AsteroidGame extends FlameGame<World>
   final Controller controller = Controller();
   final Vector2 parallaxBaseVelocity = Vector2(0, -25);
   final TextPaint shipAngleTextPaint = TextPaint();
+
+  List<Asteroid> asteroids = <Asteroid>[];
 
   // Number of balls and number of timer ticks
   static const int numSimulationObjects = 4;
@@ -55,6 +59,7 @@ class AsteroidGame extends FlameGame<World>
   Future<void> onLoad() async {
     await super.onLoad();
     await setup();
+    await loadLevel();
 
     //
     // joystick knob and background skin styles
@@ -73,6 +78,8 @@ class AsteroidGame extends FlameGame<World>
     await add(controller);
     await add(player);
     await add(joystick);
+
+    await controller.init();
   }
 
   @override
@@ -148,15 +155,37 @@ class AsteroidGame extends FlameGame<World>
   }
 
   Future<void> setup() async {
-    print('Setting up game');
-    print('level data: $levelData');
-
     await cacheImages();
-    // Parallax background
     await setupParallax();
-
     addOverlays();
-    await addTimers();
+    // do not load balls
+    // await addTimers();
+  }
+
+  Future<void> loadLevel() async {
+    final YamlMap levelData = await Configuration.getLevelData(levelId);
+    print('Setting up level: $levelId');
+    print('level data: ${levelData}');
+
+    // clear just in case
+    asteroids.clear();
+
+    for (final dynamic asteroidData in levelData['asteroids'] as Iterable) {
+      final AsteroidBuildContext context = AsteroidBuildContext()
+        ..speed = asteroidData['speed'] as double
+        ..position = Vector2(
+          (asteroidData['position.x'] as int).toDouble(),
+          (asteroidData['position.y'] as int).toDouble(),
+        )
+        ..asteroidType =
+            AsteroidEnum.fromString(asteroidData['name'] as String);
+      final Asteroid? newAsteroid = AsteroidFactory.create(context);
+
+      if (newAsteroid != null) {
+        await add(newAsteroid);
+        asteroids.add(newAsteroid);
+      }
+    }
   }
 
   Future<void> togglePause() async {

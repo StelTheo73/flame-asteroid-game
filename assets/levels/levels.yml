@@ -10,33 +10,33 @@ game_data:
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: largeAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: mediumAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: smallAsteroid
       gameBonus:
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           trigger.time.seconds: 50
           name: ufoBonus
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           trigger.time.seconds: 50
           name: ufoBonus
 
@@ -46,19 +46,19 @@ game_data:
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: largeAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: mediumAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: smallAsteroid
 
     - id: 3
@@ -67,17 +67,17 @@ game_data:
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: largeAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: mediumAsteroid
         - position.x: 20
           position.y: 30
           velocity.x: 30
           velocity.y: 50
-          speed: 125
+          speed: 125.0
           name: smallAsteroid
