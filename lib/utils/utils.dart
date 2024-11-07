@@ -38,10 +38,10 @@ class Utils {
 
   /// Generate a random direction and velocity for any Component
   ///
-  /// This creates a directional vector that is randmized over a unit circle
+  /// This creates a directional vector that is randomized over a unit circle
   /// the [min] and [max] are used to create a range for the actual speed
   /// component of the vector
-  static Vector2 generateRandomVelocity(Vector2 screenSize, int min, int max) {
+  static Vector2 generateRandomVelocity(int min, int max) {
     Vector2 result = Vector2.zero();
     double velocity;
 
@@ -58,7 +58,7 @@ class Utils {
 
   /// Generate a random direction for a component
   ///
-  /// This creates a directional vector that is randmized over a unit circle
+  /// This creates a directional vector that is randomized over a unit circle
   static Vector2 generateRandomDirection() {
     Vector2 result = Vector2.zero();
 
@@ -120,5 +120,10 @@ class Utils {
     }
 
     return result;
+  }
+
+  static Vector2 vector2Multiply(Vector2 v1, Vector2 v2) {
+    v1.multiply(v2);
+    return v1;
   }
 }

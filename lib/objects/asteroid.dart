@@ -1,8 +1,13 @@
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
 
 import '../game/game.dart';
+import '../utils/command.dart';
+import '../utils/utils.dart';
+import 'bullet.new.dart';
+import 'spaceship.dart';
 
 /// Simple enum which will hold enumerated names for all our [Asteroid]-derived
 /// child classes
@@ -38,23 +43,47 @@ enum AsteroidEnum {
 ///
 abstract class Asteroid extends PositionComponent
     with HasGameRef<AsteroidGame>, CollisionCallbacks {
+  static const double defaultSpeed = 100.00;
+  static const int defaultDamage = 1;
+  static const int defaultHealth = 1;
+  static final defaultSize = Vector2.all(5.0);
+
+  // velocity vector for the asteroid.
+  late Vector2 _velocity;
+
+  // speed of the asteroid
+  late double _speed;
+
+  // health of the asteroid
+  late int? _health;
+
+  // damage that the asteroid does
+  late int? _damage;
+
+  // resolution multiplier
+  late final Vector2 _resolutionMultiplier;
+
   //
   // default constructor with default values
-  Asteroid(Vector2 position, Vector2 velocity, Vector2 size)
+  Asteroid(Vector2 position, Vector2 velocity, double speed,
+      Vector2 resolutionMultiplier)
       : _velocity = velocity.normalized(),
-        _speed = defaultSpeed,
         _health = defaultHealth,
         _damage = defaultDamage,
+        _resolutionMultiplier = resolutionMultiplier,
         super(
-          size: size,
+          size: defaultSize,
           position: position,
           anchor: Anchor.center,
         );
+
   //
   // named constructor
-  Asteroid.fullInit(Vector2 position, Vector2 velocity, Vector2 size,
-      {double? speed, int? health, int? damage})
-      : _velocity = velocity.normalized(),
+  Asteroid.fullInit(
+      Vector2 position, Vector2 velocity, Vector2 resolutionMultiplier,
+      {Vector2? size, double? speed, int? health, int? damage})
+      : _resolutionMultiplier = resolutionMultiplier,
+        _velocity = velocity.normalized(),
         _speed = speed ?? defaultSpeed,
         _health = health ?? defaultHealth,
         _damage = damage ?? defaultDamage,
@@ -63,21 +92,36 @@ abstract class Asteroid extends PositionComponent
           position: position,
           anchor: Anchor.center,
         );
-  static const double defaultSpeed = 100.00;
-  static const int defaultDamage = 1;
-  static const int defaultHealth = 1;
 
-  // velocity vector for the asteroid.
-  late Vector2 _velocity;
+  ///////////////////////////////////////////////////////
+  /// overrides
+  ///
 
-  // speed of the asteroid
-  late final double _speed;
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
 
-  // health of the asteroid
-  late int? _health;
+    if (other is Bullet) {
+      // parent?.remove(other);
+      //parent?.remove(this);
+      BulletCollisionCommand(other, this).addToController(gameRef.controller);
+      AsteroidCollisionCommand(this, other).addToController(gameRef.controller);
+      debugPrint("<Asteroid> <onCollision> detected... $other");
+    }
 
-  // damage that the asteroid does
-  late int? _damage;
+    if (other is Spaceship) {
+      //parent?.remove(this);
+      //parent?.add(ParticleGenerator.createSpriteParticleExplosion(
+      //  images: gameRef.images,
+      //  position: other.position,
+      //));
+      FlameAudio.play('missile_hit.wav', volume: 0.7);
+      // render the camera shake effect for a short duration
+      gameRef.player.shake();
+      parent?.parent?.remove(other);
+      debugPrint("<Asteroid> <onCollision> detected... $other");
+    }
+  }
 
   ///////////////////////////////////////////////////////
   // getters
@@ -96,17 +140,21 @@ abstract class Asteroid extends PositionComponent
 
   //
   // Called when the asteroid has been created.
-  void onCreate();
+  void onCreate() {
+    debugPrint("<Asteroid> <onCreate> multiplier applied");
+    // apply the multiplier to the size and position
+    size = Utils.vector2Multiply(size, _resolutionMultiplier);
+    debugPrint(
+        "<Asteroid> <onLoad> size: $size, multiplier: $_resolutionMultiplier");
+    size.y = size.x;
+    position = Utils.vector2Multiply(position, _resolutionMultiplier);
+    debugPrint("<Asteroid> <onCreate> size: ${size.x}, ${size.y}");
+    add(CircleHitbox(radius: 2.0));
+  }
 
   //
   // Called when the asteroid is being destroyed.
   void onDestroy();
-
-  //
-  // Called when the asteroid has been hit. The ‘other’ is what the asteroid
-  // hit, or was hit by.
-  Future<void> onCollision(
-      Set<Vector2> intersectionPoints, PositionComponent other);
 
   //
   // getter to check of this asteroid can be split
@@ -119,7 +167,11 @@ abstract class Asteroid extends PositionComponent
   // You will override this method to return a non-empty list if valid enum
   // values for when the astroid gets split when it is hit
   List<AsteroidEnum> getSplitAsteroids() {
-    return List<AsteroidEnum>.empty();
+    return List.empty();
+  }
+
+  Vector2 getNextPosition() {
+    return Utils.wrapPosition(gameRef.size, position);
   }
 }
 
@@ -131,23 +183,31 @@ abstract class Asteroid extends PositionComponent
 /// is also the lowest health you can have.
 ///
 class SmallAsteroid extends Asteroid {
-  SmallAsteroid(super.position, super.velocity, super.size)
+  SmallAsteroid(
+      double speed, super.position, super.velocity, super.resolutionMultiplier)
       : super.fullInit(
-            speed: defaultSpeed,
+            speed: speed,
             health: Asteroid.defaultHealth,
-            damage: Asteroid.defaultDamage) {
-    add(CircleHitbox());
-  }
+            damage: Asteroid.defaultDamage,
+            size: defaultSize);
+
   //
   // named constructor
-  SmallAsteroid.fullInit(super.position, super.velocity, super.size,
-      double? speed, int? health, int? damage)
-      : super.fullInit(speed: speed, health: health, damage: damage) {
-    add(CircleHitbox());
-  }
+  SmallAsteroid.fullInit(
+      Vector2 position,
+      Vector2 velocity,
+      Vector2 resolutionMultiplier,
+      Vector2? size,
+      double? speed,
+      int? health,
+      int? damage)
+      : super.fullInit(position, velocity, resolutionMultiplier,
+            size: size, speed: speed, health: health, damage: damage);
+
   static const double defaultSpeed = 150.0;
+  static final Vector2 defaultSize = Vector2(16.0, 16.0);
   // color of the asteroid
-  static final Paint _paint = Paint()..color = Colors.green;
+  static final _paint = Paint()..color = Colors.green;
 
   @override
   Future<void> onLoad() async {
@@ -196,23 +256,30 @@ class SmallAsteroid extends Asteroid {
 /// is also the lowest health you can have.
 ///
 class MediumAsteroid extends Asteroid {
-  MediumAsteroid(super.position, super.velocity, super.size)
+  MediumAsteroid(
+      double speed, super.position, super.velocity, super.resolutionMultiplier)
       : super.fullInit(
-            speed: defaultSpeed,
+            speed: speed,
             health: Asteroid.defaultHealth,
-            damage: Asteroid.defaultDamage) {
-    add(CircleHitbox());
-  }
+            damage: Asteroid.defaultDamage,
+            size: defaultSize);
   //
   // named constructor
-  MediumAsteroid.fullInit(super.position, super.velocity, super.size,
-      double? speed, int? health, int? damage)
-      : super.fullInit(speed: speed, health: health, damage: damage) {
-    add(CircleHitbox());
-  }
-  static const double defaultSpeed = 150.0;
+  MediumAsteroid.fullInit(
+      Vector2 position,
+      Vector2 velocity,
+      Vector2 resolutionMultiplier,
+      Vector2? size,
+      double? speed,
+      int? health,
+      int? damage)
+      : super.fullInit(position, velocity, resolutionMultiplier,
+            size: size, speed: speed, health: health, damage: damage);
+
+  static const double defaultSpeed = 100.0;
+  static final Vector2 defaultSize = Vector2(32.0, 32.0);
   // color of the asteroid
-  static final Paint _paint = Paint()..color = Colors.green;
+  static final _paint = Paint()..color = Colors.blue;
 
   @override
   Future<void> onLoad() async {
@@ -261,23 +328,31 @@ class MediumAsteroid extends Asteroid {
 /// is also the lowest health you can have.
 ///
 class LargeAsteroid extends Asteroid {
-  LargeAsteroid(super.position, super.velocity, super.size)
+  LargeAsteroid(
+      double speed, super.position, super.velocity, super.resolutionMultiplier)
       : super.fullInit(
-            speed: defaultSpeed,
+            speed: speed,
             health: Asteroid.defaultHealth,
-            damage: Asteroid.defaultDamage) {
-    add(CircleHitbox());
-  }
+            damage: Asteroid.defaultDamage,
+            size: defaultSize);
+
   //
   // named constructor
-  LargeAsteroid.fullInit(super.position, super.velocity, super.size,
-      double? speed, int? health, int? damage)
-      : super.fullInit(speed: speed, health: health, damage: damage) {
-    add(CircleHitbox());
-  }
-  static const double defaultSpeed = 150.0;
+  LargeAsteroid.fullInit(
+      super.position,
+      super.velocity,
+      super.resolutionMultiplier,
+      Vector2? size,
+      double? speed,
+      int? health,
+      int? damage)
+      : super.fullInit(
+            size: size, speed: speed, health: health, damage: damage);
+
+  static const double defaultSpeed = 65.0;
+  static final Vector2 defaultSize = Vector2(64.0, 64.0);
   // color of the asteroid
-  static final Paint _paint = Paint()..color = Colors.green;
+  static final Paint _paint = Paint()..color = Colors.red;
 
   @override
   Future<void> onLoad() async {
@@ -339,19 +414,31 @@ class AsteroidFactory {
     switch (context.asteroidType) {
       case AsteroidEnum.largeAsteroid:
         {
-          result = LargeAsteroid.fullInit(context.position, context.velocity,
-              context.size, context.speed, context.health, context.damage);
+          result = LargeAsteroid(
+            context.speed,
+            context.position,
+            context.velocity,
+            context.multiplier,
+          );
           break;
         }
       case AsteroidEnum.mediumAsteroid:
         {
-          result = MediumAsteroid.fullInit(context.position, context.velocity,
-              context.size, context.speed, context.health, context.damage);
+          result = MediumAsteroid(
+            context.speed,
+            context.position,
+            context.velocity,
+            context.multiplier,
+          );
         }
       case AsteroidEnum.smallAsteroid:
         {
-          result = SmallAsteroid.fullInit(context.position, context.velocity,
-              context.size, context.speed, context.health, context.damage);
+          result = SmallAsteroid(
+            context.speed,
+            context.position,
+            context.velocity,
+            context.multiplier,
+          );
         }
     }
     return result;
@@ -364,7 +451,6 @@ class AsteroidFactory {
 /// We have a number of default values here as well in case callers do not
 /// define all the entries.
 class AsteroidBuildContext {
-  AsteroidBuildContext();
   static const double defaultSpeed = 0.0;
   static const int defaultHealth = 1;
   static const int defaultDamage = 1;
@@ -377,7 +463,7 @@ class AsteroidBuildContext {
   /// helper method for parsing out strings into corresponding enum values
   ///
   static AsteroidEnum asteroidFromString(String value) {
-    print('${AsteroidEnum.values}');
+    debugPrint('${AsteroidEnum.values}');
     return AsteroidEnum.values.firstWhere(
         (e) => e.toString().split('.')[1].toUpperCase() == value.toUpperCase());
   }
@@ -390,6 +476,8 @@ class AsteroidBuildContext {
   int damage = defaultDamage;
   Vector2 multiplier = defaultMultiplier;
   AsteroidEnum asteroidType = defaultAsteroidType;
+
+  AsteroidBuildContext();
 
   @override
 

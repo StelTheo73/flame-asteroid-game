@@ -158,8 +158,7 @@ class AsteroidGame extends FlameGame<World>
     await cacheImages();
     await setupParallax();
     addOverlays();
-    // do not load balls
-    // await addTimers();
+    await addTimers();
   }
 
   Future<void> loadLevel() async {
@@ -171,20 +170,29 @@ class AsteroidGame extends FlameGame<World>
     asteroids.clear();
 
     for (final dynamic asteroidData in levelData['asteroids'] as Iterable) {
+      final double _speed = asteroidData['speed'] as double;
+      final Vector2 _position = Vector2(
+        (asteroidData['position.x'] as int).toDouble(),
+        (asteroidData['position.y'] as int).toDouble(),
+      );
+      final Vector2 _velocity = Utils.generateRandomVelocity(1, _speed.toInt());
+      final AsteroidEnum _type =
+          AsteroidEnum.fromString(asteroidData['name'] as String);
+
       final AsteroidBuildContext context = AsteroidBuildContext()
-        ..speed = asteroidData['speed'] as double
-        ..position = Vector2(
-          (asteroidData['position.x'] as int).toDouble(),
-          (asteroidData['position.y'] as int).toDouble(),
-        )
-        ..asteroidType =
-            AsteroidEnum.fromString(asteroidData['name'] as String);
+        ..speed = _speed
+        ..position = _position
+        // ..velocity = _velocity
+        ..asteroidType = _type;
       final Asteroid? newAsteroid = AsteroidFactory.create(context);
 
       if (newAsteroid != null) {
+        print('will add asteroid: $newAsteroid');
         await add(newAsteroid);
         asteroids.add(newAsteroid);
       }
+
+      break;
     }
   }
 
@@ -223,6 +231,7 @@ class AsteroidGame extends FlameGame<World>
     intervalTimer = TimerComponent(
       period: 4.00,
       removeOnFinish: true,
+      autoStart: false, // do NOT load balls
       onTick: () async {
         final Vector2 rndPosition =
             Utils.generateRandomPosition(size, Vector2.all(50));

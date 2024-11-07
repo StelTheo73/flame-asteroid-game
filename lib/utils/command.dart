@@ -1,6 +1,7 @@
 import 'package:flame/components.dart';
 import 'package:flame_audio/flame_audio.dart';
 
+import '../objects/asteroid.dart';
 import '../objects/bullet.new.dart';
 import '../objects/spaceship.dart';
 import './controller.dart';
@@ -114,5 +115,65 @@ class BulletFiredSoundCommand extends Command {
   @override
   String getTitle() {
     return 'BulletFiredSoundCommand';
+  }
+}
+
+/// Implementation of the [Command] to notify a bullet that it has been hit
+///
+class BulletCollisionCommand extends Command {
+  /// the bullet being operated on
+  late Bullet targetBullet;
+  late PositionComponent collisionObject;
+
+  /// deault constructor
+  BulletCollisionCommand(Bullet bullet, PositionComponent other) {
+    targetBullet = bullet;
+    collisionObject = other;
+  }
+
+  /// work method. We create a bullet based on the Spaceship location and angle
+  /// We currently hardcode the bullet type but this could be looked up from
+  /// the speceship.
+  @override
+  void execute() {
+    // let the bullet know its being destroyed.
+    targetBullet.onDestroy();
+    // remove the bullet from the game
+    _getController().remove(targetBullet);
+  }
+
+  @override
+  String getTitle() {
+    return "BulletCollisionCommand";
+  }
+}
+
+/// Implementation of the [Command] to notify a bullet that it has been hit
+///
+class AsteroidCollisionCommand extends Command {
+  /// the bullet being operated on
+  late Asteroid targetAsteroid;
+  late PositionComponent collisionObject;
+
+  /// deault constructor
+  AsteroidCollisionCommand(Asteroid asteroid, PositionComponent other) {
+    targetAsteroid = asteroid;
+    collisionObject = other;
+  }
+
+  /// work method. We create a bullet based on the Spaceship location and angle
+  /// We currently hardcode the bullet type but this could be looked up from
+  /// the speceship.
+  @override
+  void execute() {
+    // let the asteroid know its being destroyed.
+    targetAsteroid.onDestroy();
+    // remove the bullet from the game
+    _getController().remove(targetAsteroid);
+  }
+
+  @override
+  String getTitle() {
+    return "AsteroidCollisionCommand";
   }
 }

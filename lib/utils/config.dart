@@ -36,14 +36,10 @@ class Configuration {
   }
 
   static Future<List<dynamic>> loadLevels() async {
-    print('loading levels');
     final String yamlString =
         await rootBundle.loadString('assets/levels/levels.yml');
     final dynamic yaml = loadYaml(yamlString);
-    print('levels loaded');
     levels = yaml['game_data']['levels'] as List<dynamic>;
-    print('level data: ');
-    print(levels);
     return levels;
   }
 
